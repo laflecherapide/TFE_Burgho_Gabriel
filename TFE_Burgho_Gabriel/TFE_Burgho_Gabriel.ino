@@ -47,7 +47,7 @@ config DAC
 
 
 
-void configure_gclock_generator(void)//source AT07627: ASF Manual (SAM D21) [APPLICATION NOTE] 431
+/*void configure_gclock_generator(void)//source AT07627: ASF Manual (SAM D21) [APPLICATION NOTE] 431
 {
  struct system_gclk_gen_config gclock_gen_conf;
  system_gclk_gen_get_config_defaults(&gclock_gen_conf);
@@ -63,46 +63,78 @@ void configure_gclock_channel(void) //source AT07627: ASF Manual (SAM D21) [APPL
  gclk_chan_conf.source_generator = GCLK_GENERATOR_1;
  system_gclk_chan_set_config(TC3_GCLK_ID, &gclk_chan_conf);
  system_gclk_chan_enable(TC3_GCLK_ID);
-}
+}*/
+#include "Adafruit_NeoMatrix_ZeroDMA.h"
+//source AT07627: ASF Manual (SAM D21) [APPLICATION NOTE] 489
+#define PWM_MODULE EXT1_PWM_MODULE
+#define PWM_OUT_PIN EXT1_PWM_0_PIN
+#define PWM_OUT_MUX EXT1_PWM_0_MUX
+struct tc_module tc_instance;
+struct dma_resource example_resource;
+#define TRANSFER_SIZE (16)
+#define TRANSFER_COUNTER (64)
+static uint8_t source_memory[TRANSFER_SIZE*TRANSFER_COUNTER];
+static uint8_t destination_memory[TRANSFER_SIZE*TRANSFER_COUNTER];
+static volatile bool transfer_is_done = false;
+COMPILER_ALIGNED(16)
+DmacDescriptor example_descriptor;
 
-struct tc_module tc_instance;//source AT07627: ASF Manual (SAM D21) [APPLICATION NOTE] 483
-void tc_callback_to_toggle_led(
- struct tc_module *const module_inst)
-{
- port_pin_toggle_output_level(LED0_PIN);
-}
+#define TRANSFER_SIZE (16)
+#define TRANSFER_COUNTER (64)
+static uint8_t source_memory[TRANSFER_SIZE*TRANSFER_COUNTER];
+static uint8_t destination_memory[TRANSFER_SIZE*TRANSFER_COUNTER];
+static volatile bool transfer_is_done = false;
+COMPILER_ALIGNED(16)
+DmacDescriptor example_descriptor;
 void configure_tc(void)
 {
  struct tc_config config_tc;
  tc_get_config_defaults(&config_tc);
- config_tc.counter_size = TC_COUNTER_SIZE_8BIT;
- config_tc.clock_source = GCLK_GENERATOR_1;
- config_tc.clock_prescaler = TC_CLOCK_PRESCALER_DIV1024;
- config_tc.counter_8_bit.period = 100;
- config_tc.counter_8_bit.compare_capture_channel[0] = 50;
- config_tc.counter_8_bit.compare_capture_channel[1] = 54;
- tc_init(&tc_instance, TC3, &config_tc);
+ config_tc.counter_size = TC_COUNTER_SIZE_16BIT;
+ config_tc.wave_generation = TC_WAVE_GENERATION_NORMAL_PWM;
+ config_tc.counter_16_bit.compare_capture_channel[0] = (0xFFFF / 4);
+ config_tc.pwm_channel[0].enabled = true;
+ config_tc.pwm_channel[0].pin_out = PWM_OUT_PIN;
+ config_tc.pwm_channel[0].pin_mux = PWM_OUT_MUX;
+ tc_init(&tc_instance, PWM_MODULE, &config_tc);
  tc_enable(&tc_instance);
 }
-void configure_tc_callbacks(void)
+void transfer_done( const struct dma_resource* const resource )
 {
- tc_register_callback(&tc_instance, tc_callback_to_toggle_led,
- TC_CALLBACK_OVERFLOW);
- tc_register_callback(&tc_instance, tc_callback_to_toggle_led,
- TC_CALLBACK_CC_CHANNEL0);
- tc_register_callback(&tc_instance, tc_callback_to_toggle_led,
- TC_CALLBACK_CC_CHANNEL1);
- tc_enable_callback(&tc_instance, TC_CALLBACK_OVERFLOW);
- tc_enable_callback(&tc_instance, TC_CALLBACK_CC_CHANNEL0);
- tc_enable_callback(&tc_instance, TC_CALLBACK_CC_CHANNEL1);
+ UNUSED(resource);
+ transfer_is_done = true;
+}
+void configure_dma_resource(struct dma_resource *resource)
+{
+ struct dma_resource_config config;
+ dma_get_config_defaults(&config);
+ config.peripheral_trigger = TC6_DMAC_ID_MC_0;
+ dma_allocate(resource, &config);
+}
+void setup_dma_descriptor(DmacDescriptor *descriptor)
+{
+ struct dma_descriptor_config descriptor_config;
+ dma_descriptor_get_config_defaults(&descriptor_config);
+ descriptor_config.block_transfer_count = TRANSFER_SIZE;
+ descriptor_config.source_address = (uint32_t)source_memory + TRANSFER_SIZE;
+ descriptor_config.destination_address = (uint32_t)destination_memory + TRANSFER_SIZE;
+ dma_descriptor_create(descriptor, &descriptor_config);
 }
 
 void setup() {
-  configure_gclock_generator();
-configure_gclock_channel();
-configure_tc();
-configure_tc_callbacks();
+  configure_tc();
+
 }
 
 void loop() {
+  for(i=0;i<TRANSFER_COUNTER;i++) {
+ transfer_is_done = false;
+ dma_start_transfer_job(&example_resource);
+ while (!transfer_is_done) {
+ /* Wait for transfer done */
+ }
+ example_descriptor.SRCADDR.reg += TRANSFER_SIZE;
+ example_descriptor.DSTADDR.reg += TRANSFER_SIZE;
+}
+while(1);
 }
