@@ -8,7 +8,7 @@ void configure_adc(void)
  config_adc.gain_factor = ADC_GAIN_FACTOR_DIV2;
  config_adc.clock_prescaler = ADC_CLOCK_PRESCALER_DIV16;
  config_adc.reference = ADC_REFERENCE_INTVCC1;
- config_adc.positive_input = ADC_POSITIVE_INPUT_PIN4;
+ config_adc.positive_input = ADC_POSITIVE_INPUT_PIN4; //PA4 = A3
  config_adc.resolution = ADC_RESOLUTION_10BIT;
  config_adc.freerunning = true;
  config_adc.left_adjust = false;
@@ -36,9 +36,6 @@ void configure_dma_resource(struct dma_resource *resource)
  dma_get_config_defaults(&config);
  config.peripheral_trigger = ADC_DMAC_ID_RESRDY;
  config.trigger_action = DMA_TRIGGER_ACTON_BEAT;
-AT07627: ASF Manual (SAM D21) [APPLICATION NOTE]
-42258A-SAMD21-04/2014
-76
  dma_allocate(resource, &config);
 }
 void setup_transfer_descriptor(DmacDescriptor *descriptor)
