@@ -2,9 +2,6 @@
 config clock {
   To connect a Generic Clock Generator to a peripheral within the device, a Generic Clock Channel is used. Each
 peripheral or peripheral group has an associated Generic Clock Channel, which serves as the clock input for
-AT07627: ASF Manual (SAM D21) [APPLICATION NOTE]
-42258A-SAMD21-04/2014
-403
 the peripheral(s). To supply a clock to the peripheral module(s), the associated channel must be connected to a
 running Generic Clock Generator and the channel enabled.
 A Basic Timer is a simple application where compare match operations is used to determine when a specific period
@@ -45,96 +42,22 @@ config clock dma
 config DAC
 */
 
-
-
-/*void configure_gclock_generator(void)//source AT07627: ASF Manual (SAM D21) [APPLICATION NOTE] 431
-{
- struct system_gclk_gen_config gclock_gen_conf;
- system_gclk_gen_get_config_defaults(&gclock_gen_conf);
- gclock_gen_conf.source_clock = SYSTEM_CLOCK_SOURCE_OSC8M;
- gclock_gen_conf.division_factor = 128;
- system_gclk_gen_set_config(GCLK_GENERATOR_1, &gclock_gen_conf);
- system_gclk_gen_enable(GCLK_GENERATOR_1);
-}
-void configure_gclock_channel(void) //source AT07627: ASF Manual (SAM D21) [APPLICATION NOTE] 432
-{
- struct system_gclk_chan_config gclk_chan_conf;
- system_gclk_chan_get_config_defaults(&gclk_chan_conf);
- gclk_chan_conf.source_generator = GCLK_GENERATOR_1;
- system_gclk_chan_set_config(TC3_GCLK_ID, &gclk_chan_conf);
- system_gclk_chan_enable(TC3_GCLK_ID);
-}*/
-#include "Adafruit_NeoMatrix_ZeroDMA.h"
-//source AT07627: ASF Manual (SAM D21) [APPLICATION NOTE] 489
-#define PWM_MODULE EXT1_PWM_MODULE
-#define PWM_OUT_PIN EXT1_PWM_0_PIN
-#define PWM_OUT_MUX EXT1_PWM_0_MUX
-struct tc_module tc_instance;
-struct dma_resource example_resource;
-#define TRANSFER_SIZE (16)
-#define TRANSFER_COUNTER (64)
-static uint8_t source_memory[TRANSFER_SIZE*TRANSFER_COUNTER];
-static uint8_t destination_memory[TRANSFER_SIZE*TRANSFER_COUNTER];
-static volatile bool transfer_is_done = false;
-COMPILER_ALIGNED(16)
-DmacDescriptor example_descriptor;
-
-#define TRANSFER_SIZE (16)
-#define TRANSFER_COUNTER (64)
-static uint8_t source_memory[TRANSFER_SIZE*TRANSFER_COUNTER];
-static uint8_t destination_memory[TRANSFER_SIZE*TRANSFER_COUNTER];
-static volatile bool transfer_is_done = false;
-COMPILER_ALIGNED(16)
-DmacDescriptor example_descriptor;
-void configure_tc(void)
-{
- struct tc_config config_tc;
- tc_get_config_defaults(&config_tc);
- config_tc.counter_size = TC_COUNTER_SIZE_16BIT;
- config_tc.wave_generation = TC_WAVE_GENERATION_NORMAL_PWM;
- config_tc.counter_16_bit.compare_capture_channel[0] = (0xFFFF / 4);
- config_tc.pwm_channel[0].enabled = true;
- config_tc.pwm_channel[0].pin_out = PWM_OUT_PIN;
- config_tc.pwm_channel[0].pin_mux = PWM_OUT_MUX;
- tc_init(&tc_instance, PWM_MODULE, &config_tc);
- tc_enable(&tc_instance);
-}
-void transfer_done( const struct dma_resource* const resource )
-{
- UNUSED(resource);
- transfer_is_done = true;
-}
-void configure_dma_resource(struct dma_resource *resource)
-{
- struct dma_resource_config config;
- dma_get_config_defaults(&config);
- config.peripheral_trigger = TC6_DMAC_ID_MC_0;
- dma_allocate(resource, &config);
-}
-void setup_dma_descriptor(DmacDescriptor *descriptor)
-{
- struct dma_descriptor_config descriptor_config;
- dma_descriptor_get_config_defaults(&descriptor_config);
- descriptor_config.block_transfer_count = TRANSFER_SIZE;
- descriptor_config.source_address = (uint32_t)source_memory + TRANSFER_SIZE;
- descriptor_config.destination_address = (uint32_t)destination_memory + TRANSFER_SIZE;
- dma_descriptor_create(descriptor, &descriptor_config);
-}
+//source AT07627: ASF Manual (SAM D21) [APPLICATION NOTE] 74
+//****************LIBRAIRIE*****************
+#include "talkie_walkie.h"
 
 void setup() {
-  configure_tc();
-
+  configure_adc();
+  configure_dac();
+  configure_dac_channel();
+  configure_dma_resource(&example_resource);
+  setup_transfer_descriptor(&example_descriptor);
+  dma_add_descriptor(&example_resource, &example_descriptor);
 }
 
 void loop() {
-  for(i=0;i<TRANSFER_COUNTER;i++) {
- transfer_is_done = false;
- dma_start_transfer_job(&example_resource);
- while (!transfer_is_done) {
- /* Wait for transfer done */
- }
- example_descriptor.SRCADDR.reg += TRANSFER_SIZE;
- example_descriptor.DSTADDR.reg += TRANSFER_SIZE;
-}
-while(1);
+  adc_start_conversion(&adc_instance);
+  dma_start_transfer_job(&example_resource);
+  while (true);
+
 }
