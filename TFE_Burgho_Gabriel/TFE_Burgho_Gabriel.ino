@@ -42,22 +42,25 @@ config clock dma
 config DAC
 */
 
-//source AT07627: ASF Manual (SAM D21) [APPLICATION NOTE] 74
 //****************LIBRAIRIE*****************
 #include "talkie_walkie.h"
 
 void setup() {
-  configure_adc();
-  configure_dac();
-  configure_dac_channel();
-  configure_dma_resource(&example_resource);
-  setup_transfer_descriptor(&example_descriptor);
-  dma_add_descriptor(&example_resource, &example_descriptor);
+  pinMode(PIN_ADC, INPUT);
+  analogWriteResolution(10);//resolution de 10 bits la même que l'ADC
 }
 
 void loop() {
-  adc_start_conversion(&adc_instance);
-  dma_start_transfer_job(&example_resource);
-  while (true);
-
+  if (buffer[100] != 0) //si le buffer est vide on échantillonne
+  {
+    for (int i = 0; i<buffer_size;i++)//remplit le buffer
+  {
+    buffer[i] = analogRead(PIN_ADC);
+  }
+  }
+  for (int i = 0; i<buffer_size;i++)
+  {
+    analogWrite(PIN_DAC, buffer[i]);
+    buffer[i] = 0;//vide le buffer aprés lecture
+  }   
 }
