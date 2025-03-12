@@ -17,23 +17,28 @@ void setupTimer() {
 //GCLK_CLKCTRL_CLKEN un macro qui permet d'activer la clock (enable) si il est à 1 c'est le 15éme bit du registre CLKCTRL il est définit ligne 207 de gclk.h il vaut 1 dans la librairie mais pour affecter que le bon bit qui est le 15éme, on lui applique un bit shift grâce à l'opération << de 14 (définit par GCLK_CLKCTRL_CLKEN_Pos ligne 206 de gclk.h) ce qui fait que GCLK_CLKCTRL_CLKEN vaut en réalite 100 0000 0000 0000 c'est donc bien le 15ème bit qui est mis à 1.
 //Cette méthode permet que le code soit compréhensible pour l'homme
 //le .reg est une union définit ligne 228 gclk.h. une union est une struct qui peut contenir qu'un seul de ses membres à la fois, dans ce cas il y a qu'un membre qui est une struct donc c'est de l'optimisation de mémoire.
-//
-    while (GCLK->STATUS.bit.SYNCBUSY);
+
+    while (GCLK->STATUS.bit.SYNCBUSY);//on attends que la clock soit synchronisée
  
-    TC3->COUNT16.CTRLA.reg = TC_CTRLA_SWRST;
-    while (TC3->COUNT16.STATUS.bit.SYNCBUSY);
+    TC3->COUNT16.CTRLA.reg = TC_CTRLA_SWRST;//software reset
+
+    while (TC3->COUNT16.STATUS.bit.SYNCBUSY);//on attends que la clock soit synchronisée
  
     TC3->COUNT16.CTRLA.reg = TC_CTRLA_MODE_COUNT16 |
                              TC_CTRLA_WAVEGEN_MFRQ |
                              TC_CTRLA_PRESCALER_DIV1;
-
+//on configure TC3 en compteur de 16 bits
+//on accède à la struct COUNT16, au registre CTRLA et on applique un porte logique OU avec plusieur masque binaire pour mettre la clock en compteur de 16 bits, et choisir un prescaler de 0
     TC3->COUNT16.CC[0].reg = 48;
+
     while (TC3->COUNT16.STATUS.bit.SYNCBUSY);
  
     TC3->COUNT16.INTENSET.bit.MC0 = 1;
+    
     NVIC_EnableIRQ(TC3_IRQn);
  
     TC3->COUNT16.CTRLA.bit.ENABLE = 1;
+    
     while (TC3->COUNT16.STATUS.bit.SYNCBUSY);
 }
 

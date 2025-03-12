@@ -7,8 +7,9 @@ void setup() {
     generateSineWave();
     setupDAC();
     setupTimer();
+    pinMode(11,OUTPUT);
 }
- 
+
 void loop() {
-    // Rien à faire ici, tout est géré par interruptions
+  digitalWrite(11,  0);//désactive le shutdown
 }
