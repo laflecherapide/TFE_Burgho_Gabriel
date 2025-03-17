@@ -3,13 +3,13 @@
 #include "talkie_walkie.h"
 
 void setup() {
-    Serial.begin(115200);
-    generateSineWave();
-    setupDAC();
-    setupTimer();
-    pinMode(11,OUTPUT);
+  pinMode(11, OUTPUT);
+  Serial.begin(115200);
+  generateSineWave();
+  setupDAC();
+  setupTimer();
+  digitalWrite(11, 0);  //désactive le shutdown
 }
 
 void loop() {
-  digitalWrite(11,  0);//désactive le shutdown
 }
