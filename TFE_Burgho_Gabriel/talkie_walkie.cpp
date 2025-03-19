@@ -66,7 +66,7 @@ void setupDAC(void) {
 void TC3_Handler(void) {
   static volatile uint16_t currentIndex = 0;
     TC3->COUNT16.INTFLAG.bit.MC0 = 1; // Effacer immédiatement le flag
-    delayMicroseconds(1);//réduire la fréquence pour qu'elle soit dans la bande passante
+    delayMicroseconds(2);//réduire la fréquence pour qu'elle soit dans la bande passante
     DAC->DATA.reg = sineTable[currentIndex++];
     if (currentIndex >= TABLE_SIZE) 
     {

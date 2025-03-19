@@ -1,13 +1,32 @@
 #include "T-W_espnow.h"
 
+Adafruit_SSD1306 display = Adafruit_SSD1306(128, 32, &WIRE);
+
 uint8_t sample[sample_size];
 
+const byte display_adress = 0x3C;
 const uint8_t mac_TX[] = {0x64, 0xE8, 0x33, 0x86, 0x57, 0x00};//header_pin
 const uint8_t mac_RX[] = {0x54, 0x32, 0x04, 0x86, 0xDA, 0x1C};//PCB
 
 esp_now_peer_info_t peerInfo;
 
 String success;
+
+void refresh(void)
+{
+  display.display();
+  display.clearDisplay();
+}
+
+void init_display(const byte adress)
+{
+  display.begin(SSD1306_SWITCHCAPVCC, adress); // Address 0x3C for 128x32
+  delay(1000);
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(SSD1306_WHITE);
+  display.setCursor(0,0);
+}
 
 void initEspNow(void) 
 {
