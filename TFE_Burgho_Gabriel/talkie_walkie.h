@@ -46,10 +46,15 @@ config DAC
 //****************LIBRAIRIE*****************
 #include <Arduino.h>
 #include <math.h>
+#include <SPI.h>
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
 
-#define TABLE_SIZE 128
 #define AMPLITUDE 512
 #define OFFSET 512
+#define WIRE Wire
+#define sample_size 250
 
 void setupTimer(void);
 void generateSineWave(void);

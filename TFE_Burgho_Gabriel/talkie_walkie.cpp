@@ -1,9 +1,7 @@
-#include "delay.h"
-
 //****************LIBRAIRIE*****************
 #include "talkie_walkie.h"
 
-uint16_t sineTable[TABLE_SIZE];//tableau de int non signé (>1) de 16 bits 
+uint16_t sineTable[sample_size];//tableau de int non signé (>1) de 16 bits 
 
 void setupTimer(void) {
     PM->APBCMASK.reg |= PM_APBCMASK_TC3;//active la clock TC3 : PM est un pointeur vers la struct Pm définie dans pm.h ligne 521 comme suit :" __IO PM_APBCMASK_Type          APBCMASK;" APBCMASK est donc un membre de la struct Pm et on active la Clock grâce à un masque binaire qui active le douziéme bit (Atmel | SMART SAM D21 [DATASHEET] 127) grâce à une porte OU appliquée au registre APBC
@@ -45,8 +43,8 @@ void setupTimer(void) {
 }
 
 void generateSineWave(void) {
-    for (int i = 0; i < TABLE_SIZE; i++) {
-        float angle = (2.0 * M_PI * i) / TABLE_SIZE;
+    for (int i = 0; i < sample_size; i++) {
+        float angle = (2.0 * M_PI * i) / sample_size;
         sineTable[i] = (uint16_t)(AMPLITUDE * sin(angle) + OFFSET);
     }
 }
@@ -68,7 +66,7 @@ void TC3_Handler(void) {
     TC3->COUNT16.INTFLAG.bit.MC0 = 1; // Effacer immédiatement le flag
     delayMicroseconds(2);//réduire la fréquence pour qu'elle soit dans la bande passante
     DAC->DATA.reg = sineTable[currentIndex++];
-    if (currentIndex >= TABLE_SIZE) 
+    if (currentIndex >= sample_size) 
     {
       currentIndex = 0;
     }
