@@ -10,6 +10,8 @@ uint8_t sample[sample_size];
 void setup() {
     pinMode(CS_PIN, INPUT);
 
+    //J'aime le poulet
+
     // Configuration de la Feather en mode esclave SPI
     SPI.begin();
     SPI.setDataMode(SPI_MODE0);
