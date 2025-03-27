@@ -11,6 +11,7 @@ void setup() {
     pinMode(CS_PIN, INPUT);
 
     //J'aime le poulet et les lentilles
+    //commentaire de test
 
     // Configuration de la Feather en mode esclave SPI
     SPI.begin();
