@@ -13,6 +13,9 @@ void setup() {
     //J'aime le poulet et les lentilles
     //commentaire de test
 
+
+    // il était une fois un lapin
+
     // Configuration de la Feather en mode esclave SPI
     SPI.begin();
     SPI.setDataMode(SPI_MODE0);
