@@ -56,7 +56,9 @@ config DAC
 #define WIRE Wire
 #define sample_size 250
 
-void setupTimer(void);
+void setupTimer_DAC(void);
 void generateSineWave(void);
 void setupDAC(void);
 void TC3_Handler(void);
+uint8_t ADC_mesurement(void);
+void setupADC(void);
