@@ -3,6 +3,15 @@
 //****************LIBRAIRIE*****************
 #include "talkie_walkie.h"
 
+// RX = D10 (PA18), PAD2
+// TX = D11 (PA16), PAD0
+Uart mySerial(&sercom1, 10, 11, SERCOM_RX_PAD_2, UART_TX_PAD_0);
+
+void SERCOM1_Handler()
+{
+  mySerial.IrqHandler();
+}
+
 uint16_t sineTable[sample_size];  //tableau de int non signé (>1) de 16 bits
 void setupDAC(void) {
   DAC->CTRLA.bit.ENABLE = 0;  //DAC est un pointer et on accede au membre CTRLA.bit.ENABLE grace à l'opérateur "->" et on le met à 0 ce qui désactive le DAC ce qui est nécessaire pour le configurer. CTRLA est une struct bit est une sous struct et ENABLE est un membre de la sous struct bit.

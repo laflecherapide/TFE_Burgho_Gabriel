@@ -7,10 +7,13 @@ uint8_t sample[sample_size];
 
 void setup() 
 {
-  pinMode(CS_PIN, INPUT_PULLUP);
-
   pinMode(11, OUTPUT);
-  Serial.begin(115200);
+  Serial.begin(9600);
+  mySerial.begin(9600);
+
+  pinPeripheral(11, PIO_SERCOM); // TX: PA16 → SERCOM1 PAD0
+  pinPeripheral(10, PIO_SERCOM); // RX: PA18 → SERCOM1 PAD2
+
   generateSineWave();
   setupDAC();
   setupTimer_DAC();
@@ -19,5 +22,14 @@ void setup()
 
 void loop() 
 {
+    Serial.println("test");
+  mySerial.print("A");
+
+  if (mySerial.available()) {
+    char data = mySerial.read();
+    Serial.printf("data %c \n", data);
+  }
+
+  delay(100);
 
 }
