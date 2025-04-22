@@ -51,14 +51,16 @@ config DAC
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 //doc : https://learn.adafruit.com/using-atsamd21-sercom-to-add-more-spi-i2c-serial-ports?view=all#creating-a-new-serial
-#include "wiring_private.h" // pour pinPeripheral()
-
-extern Uart mySerial;
 
 #define AMPLITUDE 512
 #define OFFSET 512
 #define WIRE Wire
 #define sample_size 250
+#define pin_MOSI 29
+#define pin_MISO 28
+#define pin_CS 13
+#define pin_SCK 30
+#define pin_SHUTDOWN 11
 
 void setupTimer_DAC(void);
 void generateSineWave(void);
