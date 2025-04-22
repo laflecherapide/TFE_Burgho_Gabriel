@@ -12,6 +12,16 @@ esp_now_peer_info_t peerInfo;
 
 String success;
 
+void set_pin(int pin,bool val)
+{
+    gpio_set_level((gpio_num_t)pin, val);
+}
+
+int read_pin(int pin)
+{
+  return gpio_get_level((gpio_num_t)pin);
+}
+
 float mesure_tension(void)
 {
   int mesure = analogRead(pin_tension);//retourne une valeur de 2^n proportionnelle à la tension
