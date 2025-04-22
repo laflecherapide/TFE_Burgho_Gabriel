@@ -12,6 +12,27 @@ esp_now_peer_info_t peerInfo;
 
 String success;
 
+float mesure_tension(void)
+{
+  int mesure = analogRead(pin_tension);//retourne une valeur de 2^n proportionnelle à la tension
+  float tension = (5/4095) * mesure;//converti la valeur en une tension, en un float
+  return tension;
+}
+
+void afficharge(float var1, bool var2)
+{
+  display.print("tension = ");
+  display.print(var1);
+  display.println("V");
+  if (var2 == 1)
+  {
+    display.print("occupé à chargé");
+  } else 
+  {
+    display.print("pas de charge");
+  }
+}
+
 void refresh(void)
 {
   display.display();

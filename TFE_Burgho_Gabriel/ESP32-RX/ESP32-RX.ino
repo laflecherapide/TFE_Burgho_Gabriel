@@ -1,36 +1,33 @@
 #include "T-W_espnow.h"
-#include <SPI.h>
-
-#define CS_PIN D7  // GPIO20
-bool data_SPI = 0;
 
 void setup()
 {
-  /*init_display(display_adress);
+  init_display(display_adress);
+  pinMode(pin_tension, INPUT);
+  pinMode(BP_to_ON, INPUT);
   pinMode(ENABLE_REGU, OUTPUT);
   digitalWrite(A0, 1); // Active le régulateur
   initEspNow();
   generateSample();
-*/
   Serial.begin(9600);
-  SPI.begin(8, 9, 10, CS_PIN); // SCK = GPIO8, MISO = GPIO9, MOSI = GPIO10, SS = GPIO20
-  pinMode(CS_PIN, OUTPUT);
-  digitalWrite(CS_PIN, HIGH); // Désactiver CS par défaut
 }
 
 void loop() 
 {
-  SPI.beginTransaction(SPISettings(1000000, MSBFIRST, SPI_MODE0));
-  digitalWrite(CS_PIN, LOW);  // Activer l'esclave
-
-  for (int i=0;i<sample_size;i++ )
+  bool charge = 0;
+  float tension = mesure_tension();//j'en fais une variable pour que les comparaisons se fassent à un instant t, si la tension varie.
+  if (tension >= 3.7 && tension  <= 4.2)
   {
-    data_SPI = !data_SPI;
-      SPI.transfer(data_SPI);
-      Serial.println(data_SPI);
+    digitalWrite(ENABLE_REGU,1);
+    charge = 0;
+  } else if (tension > 4.2) 
+  {
+    charge = 1;
   }
-
-  digitalWrite(CS_PIN, HIGH); // Désélectionner l'esclave
-  SPI.endTransaction();
-
+  if (tension <= 3.6) 
+  {
+    digitalWrite(ENABLE_REGU,0);
+  }
+  afficharge(tension, charge);
+  refresh();
 }

@@ -3,14 +3,15 @@
 #include <WiFi.h>
 #include <esp_wifi.h>
 #include <math.h>
-#include <SPI.h>
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 
 #define WIRE Wire
-#define ENABLE_REGU A0
+#define ENABLE_REGU D3
 #define sample_size 250
+#define pin_tension D0
+#define BP_to_ON D2
 
 extern uint8_t sample[];
 extern const uint8_t mac_TX[];//header_pin
@@ -26,3 +27,6 @@ void initEspNow(void);
 void OnDataRecv(const uint8_t *, const uint8_t *, int );
 void generateSample(void);
 void OnDataSent(const uint8_t *, esp_now_send_status_t );
+void refresh(void);
+void afficharge(float,bool);
+float mesure_tension(void);
