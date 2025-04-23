@@ -68,3 +68,7 @@ void setupDAC(void);
 void TC3_Handler(void);
 uint8_t ADC_mesurement(void);
 void setupADC(void);
+static inline void wait_cycles(uint32_t);
+byte bitBangData(byte);
+int fast_digitalRead( uint32_t );
+void fast_digitalWrite( uint32_t, uint32_t);
