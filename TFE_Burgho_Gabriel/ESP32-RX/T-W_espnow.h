@@ -9,7 +9,7 @@
 #include <Adafruit_SSD1306.h>
 
 #define WIRE Wire
-#define pin_ENABLE_REGU A3
+#define pin_ENABLE_REGU D3
 #define sample_size 250
 #define pin_TENSION D0
 #define pin_BP_ALLUMAGE D2

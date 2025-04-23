@@ -41,7 +41,7 @@ The DMAC can generate events in the below cases:
 config clock dma
 config DAC
 */
-
+//SPI bit banging : https://circuitdigest.com/article/introduction-to-bit-banging-spi-communication-in-arduino-via-bit-banging
 
 //****************LIBRAIRIE*****************
 #include <Arduino.h>

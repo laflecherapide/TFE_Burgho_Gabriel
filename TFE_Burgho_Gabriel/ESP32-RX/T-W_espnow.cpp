@@ -24,7 +24,7 @@ int read_pin(int pin)
 
 float mesure_tension(void)
 {
-  int mesure = analogRead(pin_tension);//retourne une valeur de 2^n proportionnelle à la tension
+  int mesure = analogRead(pin_TENSION);//retourne une valeur de 2^n proportionnelle à la tension
   float tension = (5/4095) * mesure;//converti la valeur en une tension, en un float
   return tension;
 }

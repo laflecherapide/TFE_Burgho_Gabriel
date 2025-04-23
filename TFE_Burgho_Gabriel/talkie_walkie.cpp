@@ -42,10 +42,11 @@ byte bitBangData(byte _send)  // This function transmit the data via bitbanging
 
   for(int i=0; i<8; i++)  // 8 bits in a byte
   {
-    fast_digitalWrite(pin_MOSI, bitRead(_send, i));    // Set MOSI
-    fast_digitalWrite(pin_SCK, HIGH);                  // SCK high
-    bitWrite(_receive, i, fast_digitalRead(pin_MISO)); // Capture MISO
-    fast_digitalWrite(pin_SCK, LOW);                   // SCK low
+    if (fast_digitalRead(pin_SCK))
+    {
+      fast_digitalWrite(pin_MISO, bitRead(_send, i));
+      bitWrite(_receive, i, fast_digitalRead(pin_MOSI));
+    }
   } 
   return _receive;        // Return the received data
 }

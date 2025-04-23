@@ -2,27 +2,40 @@
 #include "talkie_walkie.h"
 
 uint8_t sample[sample_size];
-uint8_t slaveData = 0;
-uint8_t sendData = 0;
-
+uint8_t masterData = 0;
+uint8_t sendData = 32;
+    byte data = 0;
 void setup() 
 {
+  Serial.begin(9600);
   pinMode(pin_MOSI, INPUT);
   pinMode(pin_MISO, OUTPUT);
-  pinMode(pin_CS, INPUT);
+  pinMode(pin_CS, INPUT_PULLUP);
   pinMode(pin_SCK, INPUT);
-
   pinMode(pin_SHUTDOWN, OUTPUT);
-  Serial.begin(9600);
-  generateSineWave();
+  /*generateSineWave();
   setupDAC();
-  setupTimer_DAC();
+  setupTimer_DAC();*/
   digitalWrite(pin_SHUTDOWN, 0);  //désactive le shutdown
+  //while(1) Serial.println("bloqué");
 }
 
 void loop() 
 {
-  fast_digitalWrite(pin_CS, LOW);
-  slaveData = bitBangData(sendData);
-  fast_digitalWrite(pin_CS, HIGH);
+  if (!digitalRead(pin_CS))
+  {
+    for (int i = 0; i < 8; i++)
+    {
+      if (digitalRead(pin_SCK))
+      {
+        data &= (digitalRead(pin_MOSI) << i);
+      }
+    }
+  }
+  Serial.println(data);
+  /*if (!fast_digitalRead(pin_CS))
+  {
+      masterData = bitBangData(sendData);
+  }
+  Serial.println(masterData);*/
 }
