@@ -24,12 +24,12 @@ void loop()
 {
   if (!digitalRead(pin_CS))
   {
+    data = 0;
     for (int i = 0; i < 8; i++)
     {
-      if (digitalRead(pin_SCK))
-      {
-        data &= (digitalRead(pin_MOSI) << i);
-      }
+      while (!digitalRead(pin_SCK));
+        data |= (digitalRead(pin_MOSI) << i);
+        while (digitalRead(pin_SCK));
     }
   }
   Serial.println(data);

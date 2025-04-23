@@ -52,6 +52,7 @@ void Serial_gab_Data(byte data)
       set_pin(pin_SCK, 0);
       delay(1);
   }
+  delay(2);
   digitalWrite(pin_CS, 1);
 }
 
