@@ -3,7 +3,8 @@
 #include "talkie_walkie.h"
 
 uint8_t sample[sample_size];
-
+uint8_t slaveData = 0;
+uint8_t sendData = 0;
 void setup() 
 {
   pinMode(pin_MOSI, INPUT);
@@ -13,52 +14,61 @@ void setup()
 
   pinMode(pin_SHUTDOWN, OUTPUT);
   Serial.begin(9600);
-  mySerial.begin(9600);
   generateSineWave();
   setupDAC();
   setupTimer_DAC();
   digitalWrite(pin_SHUTDOWN, 0);  //désactive le shutdown
 }
-void MOSI_1(void)
-{
-  REG_PORT_OUT1 |= 0b100 0000 0000;
+
+static inline void wait_cycles(uint32_t n) {
+    while(n--) {
+        __asm__ volatile ("nop");
+    }
 }
-void MOSI_0(void)
+
+byte bitBangData(byte _send)  // This function transmit the data via bitbanging
 {
-  REG_PORT_OUT1 &= !0b100 0000 0000;
+  byte _receive = 0;
+
+  for(int i=0; i<8; i++)  // 8 bits in a byte
+  {
+    fast_digitalWrite(pin_MOSI, bitRead(_send, i));    // Set MOSI
+    fast_digitalWrite(pin_SCK, HIGH);                  // SCK high
+    bitWrite(_receive, i, fast_digitalRead(pin_MISO)); // Capture MISO
+    fast_digitalWrite(pin_SCK, LOW);                   // SCK low
+  } 
+  return _receive;        // Return the received data
 }
-void SCK_1(void)
+
+int fast_digitalRead( uint32_t ulPin )
 {
-  REG_PORT_OUT1 |= 0b 1000 0000 0000;
+  if ( (PORT->Group[g_APinDescription[ulPin].ulPort].IN.reg & (1ul << g_APinDescription[ulPin].ulPin)) != 0 )
+  {
+    return HIGH ;
+  }
+
+  return LOW ;
 }
-void SCK_0(void)
+void fast_digitalWrite( uint32_t ulPin, uint32_t ulVal )
 {
-  REG_PORT_OUT1 &= !0b 1000 0000 0000;
+  EPortType port = g_APinDescription[ulPin].ulPort;
+  uint32_t pin = g_APinDescription[ulPin].ulPin;
+  uint32_t pinMask = (1ul << pin);
+  switch ( ulVal )
+  {
+    case LOW:
+      PORT->Group[port].OUTCLR.reg = pinMask;
+    break ;
+
+    default:
+      PORT->Group[port].OUTSET.reg = pinMask;
+    break ;
+  }
 }
-void MISO_1(void)
-{
-  REG_PORT_OUT0 |= 0b 1 0000 0000 0000;
-}
-void MISO_0(void)
-{
-  REG_PORT_OUT0 &= !0b 1 0000 0000 0000;
-}
-void CS_1(void)
-{
-  REG_PORT_OUT0 |= 0b 10 0000 0000 0000 0000;
-}
-void CS_0(void)
-{
-  REG_PORT_OUT0 &= !0b 10 0000 0000 0000 0000;
-}
-void mettre_pin_OUT0(int pin, bool state)
-{
-  REG_PORT_OUT0 |= (state << pin);
-}
-void mettre_pin_OUT1(int pin, bool state)
-{
-  REG_PORT_OUT1 |= (state << pin);
-}
+
 void loop() 
 {
+  fast_digitalWrite(pin_CS, LOW);
+  slaveData = bitBangData(sendData);
+  fast_digitalWrite(pin_CS, HIGH);
 }
