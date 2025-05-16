@@ -2,7 +2,7 @@
 #include <stdint.h>
 //****************LIBRAIRIE*****************
 #include "talkie_walkie.h"
-
+uint8_t buffer[250];
 static inline void wait_cycles(uint32_t n) {
     while(n--) {
         __asm__ volatile ("nop");
@@ -36,7 +36,6 @@ int fast_digitalRead( uint32_t ulPin )
   return LOW ;
 }
 
-uint16_t sineTable[sample_size];  //tableau de int non signé (>1) de 16 bits
 void setupDAC(void) {//chatgpt (sauf les commentaires)
   DAC->CTRLA.bit.ENABLE = 0;  //DAC est un pointer et on accede au membre CTRLA.bit.ENABLE grace à l'opérateur "->" et on le met à 0 ce qui désactive le DAC ce qui est nécessaire pour le configurer. CTRLA est une struct bit est une sous struct et ENABLE est un membre de la sous struct bit.
   while (DAC->STATUS.bit.SYNCBUSY)
@@ -115,23 +114,7 @@ void setupADC(void) {  //source https://blog.thea.codes/reading-analog-values-wi
   ADC->CTRLA.bit.ENABLE = true;
 }
 
-uint8_t ADC_mesurement(void)
-{
-    /* Wait for bus synchronization. */
-while (ADC->STATUS.bit.SYNCBUSY) {};
 
-/* Start the ADC using a software trigger. */
-ADC->SWTRIG.bit.START = true;
-
-/* Wait for the result ready flag to be set. */
-while (ADC->INTFLAG.bit.RESRDY == 0);
-
-/* Clear the flag. */
-ADC->INTFLAG.reg = ADC_INTFLAG_RESRDY;
-
-/* Read the value. */
-return ADC->RESULT.reg;
-}
 
 void setupTimer_DAC(void) {//chatgpt (sauf commentaires)
   PM->APBCMASK.reg |= PM_APBCMASK_TC3;  //active la clock TC3 : PM est un pointeur vers la struct Pm définie dans pm.h ligne 521 comme suit :" __IO PM_APBCMASK_Type          APBCMASK;" APBCMASK est donc un membre de la struct Pm et on active la Clock grâce à un masque binaire qui active le douziéme bit (Atmel | SMART SAM D21 [DATASHEET] 127) grâce à une porte OU appliquée au registre APBC
@@ -172,21 +155,38 @@ void setupTimer_DAC(void) {//chatgpt (sauf commentaires)
     ;
 }
 
-void generateSineWave(void) {
-  for (int i = 0; i < sample_size; i++) {
-    float angle = (2.0 * M_PI * i) / sample_size;
-    sineTable[i] = (uint16_t)(AMPLITUDE * sin(angle) + OFFSET);
-  }
+uint8_t ADC_mesurement(void)
+{
+    /* Wait for bus synchronization. */
+while (ADC->STATUS.bit.SYNCBUSY) {};
+
+/* Start the ADC using a software trigger. */
+ADC->SWTRIG.bit.START = true;
+
+/* Wait for the result ready flag to be set. */
+while (ADC->INTFLAG.bit.RESRDY == 0);
+
+/* Clear the flag. */
+ADC->INTFLAG.reg = ADC_INTFLAG_RESRDY;
+
+/* Read the value. */
+return ADC->RESULT.reg;
 }
-
-
 
 // Routine d'interruption rapide et optimisée
 void TC3_Handler(void) {//chatgpt (sauf commentaires)
   static volatile uint16_t currentIndex = 0;
   TC3->COUNT16.INTFLAG.bit.MC0 = 1;  // Effacer immédiatement le flag
-  DAC->DATA.reg = sineTable[currentIndex++];
-  if (currentIndex >= sample_size) {
+  DAC->DATA.reg = buffer[currentIndex];
+  if (currentIndex >= sample_size) {//vider un buffer
     currentIndex = 0;
+  }
+}
+
+void generatesample(void)
+{
+  for (int i = 0; i< 1023; i++)
+  {
+    buffer[i] = i;
   }
 }

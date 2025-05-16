@@ -63,7 +63,7 @@ config DAC
 #define pin_SHUTDOWN 11
 
 void setupTimer_DAC(void);
-void generateSineWave(void);
+void generatesample(void);
 void setupDAC(void);
 void TC3_Handler(void);
 uint8_t ADC_mesurement(void);
