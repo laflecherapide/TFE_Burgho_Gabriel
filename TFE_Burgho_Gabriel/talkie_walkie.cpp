@@ -36,23 +36,8 @@ int fast_digitalRead( uint32_t ulPin )
   return LOW ;
 }
 
-byte bitBangData(byte _send)  // This function transmit the data via bitbanging
-{
-  byte _receive = 0;
-
-  for(int i=0; i<8; i++)  // 8 bits in a byte
-  {
-    if (fast_digitalRead(pin_SCK))
-    {
-      fast_digitalWrite(pin_MISO, bitRead(_send, i));
-      bitWrite(_receive, i, fast_digitalRead(pin_MOSI));
-    }
-  } 
-  return _receive;        // Return the received data
-}
-
 uint16_t sineTable[sample_size];  //tableau de int non signé (>1) de 16 bits
-void setupDAC(void) {
+void setupDAC(void) {//chatgpt (sauf les commentaires)
   DAC->CTRLA.bit.ENABLE = 0;  //DAC est un pointer et on accede au membre CTRLA.bit.ENABLE grace à l'opérateur "->" et on le met à 0 ce qui désactive le DAC ce qui est nécessaire pour le configurer. CTRLA est une struct bit est une sous struct et ENABLE est un membre de la sous struct bit.
   while (DAC->STATUS.bit.SYNCBUSY)
     ;
@@ -148,7 +133,7 @@ ADC->INTFLAG.reg = ADC_INTFLAG_RESRDY;
 return ADC->RESULT.reg;
 }
 
-void setupTimer_DAC(void) {
+void setupTimer_DAC(void) {//chatgpt (sauf commentaires)
   PM->APBCMASK.reg |= PM_APBCMASK_TC3;  //active la clock TC3 : PM est un pointeur vers la struct Pm définie dans pm.h ligne 521 comme suit :" __IO PM_APBCMASK_Type          APBCMASK;" APBCMASK est donc un membre de la struct Pm et on active la Clock grâce à un masque binaire qui active le douziéme bit (Atmel | SMART SAM D21 [DATASHEET] 127) grâce à une porte OU appliquée au registre APBC
 
   GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID(TC3_GCLK_ID) | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_CLKEN;
@@ -197,10 +182,9 @@ void generateSineWave(void) {
 
 
 // Routine d'interruption rapide et optimisée
-void TC3_Handler(void) {
+void TC3_Handler(void) {//chatgpt (sauf commentaires)
   static volatile uint16_t currentIndex = 0;
   TC3->COUNT16.INTFLAG.bit.MC0 = 1;  // Effacer immédiatement le flag
-  delayMicroseconds(2);              //réduire la fréquence pour qu'elle soit dans la bande passante
   DAC->DATA.reg = sineTable[currentIndex++];
   if (currentIndex >= sample_size) {
     currentIndex = 0;

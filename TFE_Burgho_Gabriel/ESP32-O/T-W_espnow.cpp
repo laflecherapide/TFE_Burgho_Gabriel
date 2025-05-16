@@ -24,22 +24,24 @@ int read_pin(int pin)
 
 float mesure_tension(void)
 {
-  int mesure = analogRead(pin_TENSION);//retourne une valeur de 2^n proportionnelle à la tension
-  float tension = (5/4095) * mesure;//converti la valeur en une tension, en un float
-  return tension;
+uint32_t Vbatt = 0;
+  for(int i = 0; i < 16; i++) {
+    Vbatt = Vbatt + analogReadMilliVolts(pin_TENSION); // ADC with correction   
+  }
+  float tension = 2 * Vbatt / 16 / 1000.0;
+  return tension+0.25;//seuil de diode
 }
 
 void afficharge(float var1, bool var2)
 {
-  display.print("tension = ");
-  display.print(var1);
-  display.println("V");
+  display.print("V = ");
+  display.println(var1);
   if (var2 == 1)
   {
-    display.print("occupé à chargé");
+    display.print("charge");
   } else 
   {
-    display.print("pas de charge");
+    display.print("pas charge");
   }
 }
 

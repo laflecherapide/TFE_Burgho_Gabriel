@@ -12,6 +12,39 @@ esp_now_peer_info_t peerInfo;
 
 String success;
 
+void set_pin(int pin,bool val)
+{
+    gpio_set_level((gpio_num_t)pin, val);
+}
+
+int read_pin(int pin)
+{
+  return gpio_get_level((gpio_num_t)pin);
+}
+
+float mesure_tension(void)
+{
+uint32_t Vbatt = 0;
+  for(int i = 0; i < 16; i++) {
+    Vbatt = Vbatt + analogReadMilliVolts(pin_TENSION); // ADC with correction   
+  }
+  float tension = 2 * Vbatt / 16 / 1000.0;
+  return tension+0.25;//seuil de diode
+}
+
+void afficharge(float var1, bool var2)
+{
+  display.print("V = ");
+  display.println(var1);
+  if (var2 == 1)
+  {
+    display.print("charge");
+  } else 
+  {
+    display.print("pas charge");
+  }
+}
+
 void refresh(void)
 {
   display.display();
