@@ -1,9 +1,22 @@
 //****************LIBRAIRIE*****************
 #include "talkie_walkie.h"
 
-uint8_t buffer_in[250];
-uint8_t buffer_out[250];
+#include <Adafruit_NeoPixel.h>   // Librairie à inclure pour piloter facilement la NeoPixel
+
+#define NEOPIXEL_PIN 8        // Remplacer les ... par le numéro de la pin utilisée pour la NeoPixel
+                                 // A trouver dans le schéma de la Feather M0 express (annexe 1 du syllabus)
+                                 // (tout comme la 13 est utilisée pour la LED rouge)
+
+Adafruit_NeoPixel NeoPixel(1, NEOPIXEL_PIN, NEO_GRB); // Déclaration de l'objet NeoPixel
+                                                      // 1er paramètre = nombre de LED
+                                                      // 2ème paramètre = numéro de la pin
+                                                      // 3ème paramètre = type de LED utilisée
+
+
 void setup() {
+    NeoPixel.begin();
+  NeoPixel.setPixelColor(0, 0, 0, 0);
+  NeoPixel.show();
   Serial.begin(9600);
   analogWriteResolution(10);
   pinMode(pin_MOSI, INPUT);
@@ -25,7 +38,8 @@ void loop() {
     if (mode) {
       while (!digitalRead(pin_CS)) 
       {
-        //test mode neopixel verte
+        NeoPixel.setPixelColor(0, 0, 120, 0);
+  NeoPixel.show();//test mode neopixel verte
         /*buffer_in[0] = analogRead(A1);
           for (int i = 0; i < 8; i++) 
           {
@@ -39,7 +53,8 @@ void loop() {
     } else {
       while (!digitalRead(pin_CS))
       {
-        //test mode neopixel rouge
+        NeoPixel.setPixelColor(0, 120, 0, 0);
+  NeoPixel.show();//test mode neopixel rouge
         /*
             for (int i = 0; i < 8; i++) {
       while (!digitalRead(pin_SCK));

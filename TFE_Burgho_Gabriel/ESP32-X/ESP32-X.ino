@@ -1,7 +1,6 @@
 #include "T-W_espnow.h"
+bool mode = 0;
 
-byte slave_data = 0;
-byte send_data = 54;
 void setup() {
   Serial.begin(9600);
   init_display(display_adress);
@@ -20,14 +19,22 @@ void setup() {
   digitalWrite(pin_CS, 1);
   delay(500);
   //initEspNow();
-  //generateSample();
-    //digitalWrite(pin_ENABLE_REGU, 1);  // Active le régulateur
+    digitalWrite(pin_ENABLE_REGU, 1);  // Active le régulateur
     //while (digitalRead(pin_BP_ALLUMAGE));
 }
 
 void loop() 
 {
-
+  if (!digitalRead(pin_PUSH_TO_TALK))
+  {
+    digitalWrite(pin_CS,0);
+    digitalWrite(pin_MOSI, 1);
+    delayMicroseconds(2);
+    digitalWrite(pin_SCK, 1);
+    delayMicroseconds(2);
+    digitalWrite(pin_SCK, 0);
+    delayMicroseconds(2);
+  }
   /*if (!digitalRead(pin_PUSH_TO_TALK))
   {
     digitalWrite(pin_CS,0);
@@ -61,7 +68,7 @@ void loop()
     digitalWrite(pin_CS, 1);
   */
     
-  bool charge = 0;
+  /*bool charge = 0;
   float tension = mesure_tension();//j'en fais une variable pour que les comparaisons se fassent à un instant t, si la tension varie.
   if (tension >= 3.7 && tension  <= 4.2)
   {
@@ -78,5 +85,5 @@ void loop()
   }
   display.setCursor(0,0);
   afficharge(tension, charge);
-  refresh();
+  refresh();*/
 }

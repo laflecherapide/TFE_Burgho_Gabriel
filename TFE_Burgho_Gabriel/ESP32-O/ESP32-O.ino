@@ -1,7 +1,9 @@
 #include "T-W_espnow.h"
+#define PARLER 1
+#define ENTENDRE 0
 
-byte slave_data = 0;
-byte send_data = 54;
+uint8_t buffer_parler[250];
+uint8_t buffer_entendre[250];
 void setup() {
   Serial.begin(9600);
   init_display(display_adress);
@@ -20,33 +22,53 @@ void setup() {
   digitalWrite(pin_CS, 1);
   delay(500);
   //initEspNow();
-  //generateSample();
-    //digitalWrite(pin_ENABLE_REGU, 1);  // Active le régulateur
+    digitalWrite(pin_ENABLE_REGU, 1);  // Active le régulateur
     //while (digitalRead(pin_BP_ALLUMAGE));
 }
 
+void choix_du_mode(bool mode)
+{
+    digitalWrite(pin_MOSI, mode);
+    delayMicroseconds(2);
+    digitalWrite(pin_SCK, 1);
+    delayMicroseconds(2);
+    digitalWrite(pin_SCK, 0);
+    delayMicroseconds(2);
+}
 void loop() 
 {
-
-  /*if (!digitalRead(pin_PUSH_TO_TALK))
+  if (!digitalRead(pin_PUSH_TO_TALK))
   {
     digitalWrite(pin_CS,0);
-    for (int i = 0; i < 8;i++)
+    choix_du_mode(PARLER);
+    for (int u = 0; u < 250; u++)
     {
+      for (int i = 0; i < 8;i++)
+    {
+      digitalWrite(pin_SCK, 1);
+      delayMicroseconds(2);
+      bitWrite(buffer_parler[u], i, digitalRead(pin_MISO));
+      delayMicroseconds(2);
+      digitalWrite(pin_SCK,0);
+      delayMicroseconds(2);
+    }
+    }
+    digitalWrite(pin_CS, 1);
+    OnDataSent();
+  }
+/*envois 
       digitalWrite(pin_MOSI, bitRead(send_data, i));
       delayMicroseconds(2);
       digitalWrite(pin_SCK, 1);
       delayMicroseconds(2);
       digitalWrite(pin_SCK,0);
       delayMicroseconds(2);
-    }
-    digitalWrite(pin_CS, 1);
-  }*/
-
+*/
 
 
   /*
     slave_data = 0;
+    reception
     digitalWrite(pin_CS,0);
     for (int i = 0;i<8;i++)
     {
@@ -61,7 +83,7 @@ void loop()
     digitalWrite(pin_CS, 1);
   */
     
-  bool charge = 0;
+  /*bool charge = 0;
   float tension = mesure_tension();//j'en fais une variable pour que les comparaisons se fassent à un instant t, si la tension varie.
   if (tension >= 3.7 && tension  <= 4.2)
   {
@@ -78,5 +100,5 @@ void loop()
   }
   display.setCursor(0,0);
   afficharge(tension, charge);
-  refresh();
+  refresh();*/
 }

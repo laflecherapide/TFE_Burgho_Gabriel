@@ -2,7 +2,10 @@
 #include <stdint.h>
 //****************LIBRAIRIE*****************
 #include "talkie_walkie.h"
-uint8_t buffer[250];
+
+uint8_t buffer_in[250];
+uint8_t buffer_out[250];
+
 static inline void wait_cycles(uint32_t n) {
     while(n--) {
         __asm__ volatile ("nop");
@@ -177,7 +180,7 @@ return ADC->RESULT.reg;
 void TC3_Handler(void) {//chatgpt (sauf commentaires)
   static volatile uint16_t currentIndex = 0;
   TC3->COUNT16.INTFLAG.bit.MC0 = 1;  // Effacer immédiatement le flag
-  DAC->DATA.reg = buffer[currentIndex];
+  DAC->DATA.reg = buffer_out[currentIndex];
   if (currentIndex >= sample_size) {//vider un buffer
     currentIndex = 0;
   }
@@ -185,8 +188,8 @@ void TC3_Handler(void) {//chatgpt (sauf commentaires)
 
 void generatesample(void)
 {
-  for (int i = 0; i< 1023; i++)
+  for (int i = 0; i < 1023; i++)
   {
-    buffer[i] = i;
+    buffer_out[i] = i;
   }
 }
