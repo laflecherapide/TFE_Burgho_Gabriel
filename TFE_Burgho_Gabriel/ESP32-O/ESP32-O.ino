@@ -2,8 +2,7 @@
 #define PARLER 1
 #define ENTENDRE 0
 
-uint8_t buffer_parler[250];
-uint8_t buffer_entendre[250];
+
 void setup() {
   Serial.begin(9600);
   init_display(display_adress);
@@ -21,9 +20,8 @@ void setup() {
   digitalWrite(pin_MOSI, 0);
   digitalWrite(pin_CS, 1);
   delay(500);
-  //initEspNow();
-    digitalWrite(pin_ENABLE_REGU, 1);  // Active le régulateur
-    //while (digitalRead(pin_BP_ALLUMAGE));
+  initEspNow();
+  digitalWrite(pin_ENABLE_REGU, 1);  // Active le régulateur
 }
 
 void choix_du_mode(bool mode)
@@ -37,8 +35,17 @@ void choix_du_mode(bool mode)
 }
 void loop() 
 {
-  if (!digitalRead(pin_PUSH_TO_TALK))
-  {
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  /*if (!digitalRead(pin_PUSH_TO_TALK))
+  {//test envois
     digitalWrite(pin_CS,0);
     choix_du_mode(PARLER);
     for (int u = 0; u < 250; u++)
@@ -55,16 +62,7 @@ void loop()
     }
     digitalWrite(pin_CS, 1);
     OnDataSent();
-  }
-/*envois 
-      digitalWrite(pin_MOSI, bitRead(send_data, i));
-      delayMicroseconds(2);
-      digitalWrite(pin_SCK, 1);
-      delayMicroseconds(2);
-      digitalWrite(pin_SCK,0);
-      delayMicroseconds(2);
-*/
-
+  }*/
 
   /*
     slave_data = 0;

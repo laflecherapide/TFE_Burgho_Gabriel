@@ -1,8 +1,11 @@
+#include "esp32-hal.h"
 #include "T-W_espnow.h"
 
 Adafruit_SSD1306 display = Adafruit_SSD1306(128, 32, &WIRE);
 
 uint8_t sample[sample_size];
+uint8_t buffer_parler[250];
+uint8_t buffer_entendre[250];
 
 const byte display_adress = 0x3C;
 const uint8_t mac_X[] = {0x54, 0x32, 0x04, 0x86, 0xE4, 0x0C};
@@ -63,7 +66,6 @@ void init_display(const byte adress)
 
 void initEspNow(void) 
 {
-  Serial.begin(9600);
   WiFi.mode(WIFI_STA);
   WiFi.disconnect();  // Éviter les conflits Wi-Fi
 
@@ -89,7 +91,7 @@ void initEspNow(void)
     Serial.println(F("❌ espNOW :  Mode Long Range NON activé sur le récepteur"));
   }
   // Register peer
-  memcpy(peerInfo.peer_addr, mac_RX, 6);
+  memcpy(peerInfo.peer_addr, mac_X, 6);
   peerInfo.channel = 0;
   peerInfo.encrypt = false;
 
@@ -101,12 +103,27 @@ void initEspNow(void)
   }
 }
 // Callback when data is received
-void OnDataRecv(const uint8_t *mac_TX, const uint8_t *incomingData, int len) 
+void OnDataRecv(const uint8_t *mac_X, const uint8_t *incomingData, int len) 
 {
-  memcpy(sample, incomingData, sizeof(sample));
+  memcpy(buffer_entendre, incomingData, sizeof(buffer_entendre));
+  digitalWrite(pin_CS, 0);
+  for (int u = 0; u < 250; u++)
+  {
+    Serial.println(buffer_entendre[u]);
+    for (int i = 0; i < 8; i++)
+    {
+      digitalWrite(pin_MOSI, bitRead(buffer_entendre[u], i));
+      delayMicroseconds(2);
+      digitalWrite(pin_SCK, 1);
+      delayMicroseconds(2);
+      digitalWrite(pin_SCK,0);
+      delayMicroseconds(2);
+    } 
+  }
+  digitalWrite(pin_CS, 1);
 }
 // Callback when data is sent
-void OnDataSent(const uint8_t *mac_RX, esp_now_send_status_t status) 
+void OnDataSent(const uint8_t *mac_O, esp_now_send_status_t status) 
 {
   Serial.print("\r\nLast Packet Send Status:\t");
   Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");

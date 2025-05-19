@@ -19,10 +19,11 @@
 #define pin_SCK D8
 #define pin_CS D7
 
-
+//extern uint8_t buffer_parler[];
+extern uint8_t buffer_entendre[];
 extern uint8_t sample[];
-extern const uint8_t mac_TX[];//header_pin
-extern const uint8_t mac_RX[];//PCB
+extern const uint8_t mac_O[];
+extern const uint8_t mac_X[];
 extern esp_now_peer_info_t peerInfo;
 extern String success;
 extern const byte display_adress;

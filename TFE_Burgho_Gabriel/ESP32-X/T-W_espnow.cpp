@@ -4,9 +4,11 @@ Adafruit_SSD1306 display = Adafruit_SSD1306(128, 32, &WIRE);
 
 uint8_t sample[sample_size];
 
+uint8_t buffer_entendre[250];
+
 const byte display_adress = 0x3C;
-const uint8_t mac_TX[] = {0x64, 0xE8, 0x33, 0x86, 0x57, 0x00};//header_pin
-const uint8_t mac_RX[] = {0x54, 0x32, 0x04, 0x86, 0xDA, 0x1C};//PCB
+const uint8_t mac_X[] = {0x54, 0x32, 0x04, 0x86, 0xE4, 0x0C};
+const uint8_t mac_O[] = {0x18, 0x8B, 0x0E, 0x93, 0x7B, 0x94};
 
 esp_now_peer_info_t peerInfo;
 
@@ -63,7 +65,6 @@ void init_display(const byte adress)
 
 void initEspNow(void) 
 {
-  Serial.begin(9600);
   WiFi.mode(WIFI_STA);
   WiFi.disconnect();  // Éviter les conflits Wi-Fi
 
@@ -89,7 +90,7 @@ void initEspNow(void)
     Serial.println(F("❌ espNOW :  Mode Long Range NON activé sur le récepteur"));
   }
   // Register peer
-  memcpy(peerInfo.peer_addr, mac_RX, 6);
+  memcpy(peerInfo.peer_addr, mac_O, 6);
   peerInfo.channel = 0;
   peerInfo.encrypt = false;
 
@@ -101,12 +102,12 @@ void initEspNow(void)
   }
 }
 // Callback when data is received
-void OnDataRecv(const uint8_t *mac_TX, const uint8_t *incomingData, int len) 
+void OnDataRecv(const uint8_t *mac_O, const uint8_t *incomingData, int len) 
 {
-  memcpy(sample, incomingData, sizeof(sample));
+  memcpy(buffer_entendre, incomingData, sizeof(buffer_entendre));
 }
 // Callback when data is sent
-void OnDataSent(const uint8_t *mac_RX, esp_now_send_status_t status) 
+void OnDataSent(const uint8_t *mac_X, esp_now_send_status_t status) 
 {
   Serial.print("\r\nLast Packet Send Status:\t");
   Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");

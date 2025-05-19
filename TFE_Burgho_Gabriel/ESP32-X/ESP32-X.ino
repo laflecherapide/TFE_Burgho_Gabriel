@@ -1,5 +1,8 @@
 #include "T-W_espnow.h"
-bool mode = 0;
+#define PARLER 1
+#define ENTENDRE 0
+
+uint8_t buffer_parler[250];
 
 void setup() {
   Serial.begin(9600);
@@ -18,42 +21,61 @@ void setup() {
   digitalWrite(pin_MOSI, 0);
   digitalWrite(pin_CS, 1);
   delay(500);
-  //initEspNow();
+  initEspNow();
     digitalWrite(pin_ENABLE_REGU, 1);  // Active le régulateur
-    //while (digitalRead(pin_BP_ALLUMAGE));
 }
 
-void loop() 
+void choix_du_mode(bool mode)
 {
-  if (!digitalRead(pin_PUSH_TO_TALK))
-  {
-    digitalWrite(pin_CS,0);
-    digitalWrite(pin_MOSI, 1);
+    digitalWrite(pin_MOSI, mode);
     delayMicroseconds(2);
     digitalWrite(pin_SCK, 1);
     delayMicroseconds(2);
     digitalWrite(pin_SCK, 0);
     delayMicroseconds(2);
-  }
-  /*if (!digitalRead(pin_PUSH_TO_TALK))
-  {
+}
+void loop() 
+{
+  if (!digitalRead(pin_PUSH_TO_TALK))
+  {//test envois
     digitalWrite(pin_CS,0);
-    for (int i = 0; i < 8;i++)
+    //choix_du_mode(PARLER);
+    for (int u = 0; u < 250; u++)
     {
+      for (int i = 0; i < 8;i++)
+    {
+      digitalWrite(pin_SCK, 1);
+      delayMicroseconds(2);
+      bitWrite(buffer_parler[u], i, digitalRead(pin_MISO));
+      delayMicroseconds(2);
+      digitalWrite(pin_SCK,0);
+      delayMicroseconds(2);
+    }
+    Serial.println(buffer_parler[u]);
+    }
+    digitalWrite(pin_CS, 1);
+    esp_err_t result = esp_now_send(mac_O, buffer_parler, sizeof(buffer_parler));
+    if (result == ESP_OK)
+    {
+      Serial.println("envois réussi");
+    } else 
+    {
+      Serial.println("envois raté");
+    }
+  }
+/*envois 
       digitalWrite(pin_MOSI, bitRead(send_data, i));
       delayMicroseconds(2);
       digitalWrite(pin_SCK, 1);
       delayMicroseconds(2);
       digitalWrite(pin_SCK,0);
       delayMicroseconds(2);
-    }
-    digitalWrite(pin_CS, 1);
-  }*/
-
+*/
 
 
   /*
     slave_data = 0;
+    reception
     digitalWrite(pin_CS,0);
     for (int i = 0;i<8;i++)
     {
