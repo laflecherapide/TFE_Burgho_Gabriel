@@ -1,6 +1,7 @@
 #include "T-W_espnow.h"
-#define PARLER 1
-#define ENTENDRE 0
+
+uint8_t buffer_parler[250];
+
 void setup() 
 {
   pinMode(pin_PUSH_TO_TALK, INPUT_PULLUP);
@@ -25,20 +26,9 @@ void setup()
   initEspNow();
 }
 
-void choix_du_mode(bool mode)
-{
-    digitalWrite(pin_MOSI, mode);
-    delayMicroseconds(2);
-    digitalWrite(pin_SCK, 1);
-    delayMicroseconds(2);
-    digitalWrite(pin_SCK, 0);
-    delayMicroseconds(2);
-}
 
 void loop() 
-{
-  
-  /*if (!digitalRead(pin_PUSH_TO_TALK))
+{ if (!digitalRead(pin_PUSH_TO_TALK))
   {//test envois
     digitalWrite(pin_CS,0);
     choix_du_mode(PARLER);
@@ -53,11 +43,18 @@ void loop()
       digitalWrite(pin_SCK,0);
       delayMicroseconds(2);
     }
+    Serial.println(buffer_parler[u]);
     }
     digitalWrite(pin_CS, 1);
-    OnDataSent();
-  }*/
-
+    esp_err_t result = esp_now_send(mac_X, buffer_parler, sizeof(buffer_parler));
+    if (result == ESP_OK)
+    {
+      Serial.println("envois réussi");
+    } else 
+    {
+      Serial.println("envois raté");
+    }
+  }
   /*
     slave_data = 0;
     reception

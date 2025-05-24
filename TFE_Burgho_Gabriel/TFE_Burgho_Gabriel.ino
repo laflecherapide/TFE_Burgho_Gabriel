@@ -53,28 +53,28 @@ void loop() {
     bool mode = digitalRead(pin_MOSI);
     while (digitalRead(pin_SCK));
 
-    switch (mode) 
+    while(mode)
     {
-      case 1:
-        buffer_parler[0] = analogRead(A1);
+      buffer_parler[0] = analogRead(A1);
         for (int i = 0; i < 8; i ++)
           {
             while (!digitalRead(pin_SCK));
             digitalWrite(pin_MISO, bitRead(buffer_parler[0] , i));
             while (digitalRead(pin_SCK));
           }
-        if (digitalRead(pin_CS)) break;
-      case 0:
-        digitalWrite(pin_SHUTDOWN, 1);
+      if (digitalRead(pin_CS)) break;
+    }
+    while (!mode)
+    {
+      digitalWrite(pin_SHUTDOWN, 1);
         for (int i = 0; i < 8; i++) 
           {
             while (!digitalRead(pin_SCK));
             bitWrite(buffer_entendre[0], i, digitalRead(pin_MOSI));
             while (digitalRead(pin_SCK));
           }
-      
-        analogWrite(A0, buffer_entendre[0]);
-        if (digitalRead(pin_CS)) break;
-    } 
+      analogWrite(A0, buffer_entendre[0]);
+      if (digitalRead(pin_CS)) break;
+    }
   }
 }

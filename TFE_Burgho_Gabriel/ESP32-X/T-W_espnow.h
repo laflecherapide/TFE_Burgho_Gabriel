@@ -18,6 +18,8 @@
 #define pin_MISO D9
 #define pin_SCK D8
 #define pin_CS D7
+#define PARLER 1
+#define ENTENDRE 0
 
 //extern uint8_t buffer_parler[];
 extern uint8_t buffer_entendre[];
@@ -40,3 +42,4 @@ void afficharge(float,bool);
 float mesure_tension(void);
 void set_pin(int,bool);
 int read_pin(int);
+void choix_du_mode(bool);

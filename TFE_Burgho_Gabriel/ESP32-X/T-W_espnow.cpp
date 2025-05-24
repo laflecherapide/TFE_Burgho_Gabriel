@@ -101,10 +101,37 @@ void initEspNow(void)
     return;
   }
 }
+
+void choix_du_mode(bool mode)
+{
+    digitalWrite(pin_MOSI, mode);
+    delayMicroseconds(2);
+    digitalWrite(pin_SCK, 1);
+    delayMicroseconds(2);
+    digitalWrite(pin_SCK, 0);
+    delayMicroseconds(2);
+}
+
 // Callback when data is received
 void OnDataRecv(const uint8_t *mac_O, const uint8_t *incomingData, int len) 
 {
   memcpy(buffer_entendre, incomingData, sizeof(buffer_entendre));
+  digitalWrite(pin_CS, 0);
+  choix_du_mode(ENTENDRE);
+  for (int u = 0; u < 250; u++)
+  {
+    Serial.println(buffer_entendre[u]);
+    for (int i = 0; i < 8; i++)
+    {
+      digitalWrite(pin_MOSI, bitRead(buffer_entendre[u], i));
+      delayMicroseconds(2);
+      digitalWrite(pin_SCK, 1);
+      delayMicroseconds(2);
+      digitalWrite(pin_SCK,0);
+      delayMicroseconds(2);
+    } 
+  }
+  digitalWrite(pin_CS, 1);
 }
 // Callback when data is sent
 void OnDataSent(const uint8_t *mac_X, esp_now_send_status_t status) 

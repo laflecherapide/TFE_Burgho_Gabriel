@@ -4,7 +4,7 @@
 Adafruit_SSD1306 display = Adafruit_SSD1306(128, 32, &WIRE);
 
 uint8_t sample[sample_size];
-uint8_t buffer_parler[250];
+
 uint8_t buffer_entendre[250];
 
 const byte display_adress = 0x3C;
@@ -102,11 +102,23 @@ void initEspNow(void)
     return;
   }
 }
+
+void choix_du_mode(bool mode)
+{
+    digitalWrite(pin_MOSI, mode);
+    delayMicroseconds(2);
+    digitalWrite(pin_SCK, 1);
+    delayMicroseconds(2);
+    digitalWrite(pin_SCK, 0);
+    delayMicroseconds(2);
+}
+
 // Callback when data is received
 void OnDataRecv(const uint8_t *mac_X, const uint8_t *incomingData, int len) 
 {
   memcpy(buffer_entendre, incomingData, sizeof(buffer_entendre));
   digitalWrite(pin_CS, 0);
+  choix_du_mode(ENTENDRE);
   for (int u = 0; u < 250; u++)
   {
     Serial.println(buffer_entendre[u]);
