@@ -62,6 +62,7 @@ config DAC
 #define pin_SCK 30
 #define pin_SHUTDOWN 11
 
+
 extern uint8_t buffer_parler[];
 extern uint8_t buffer_entendre[];
 

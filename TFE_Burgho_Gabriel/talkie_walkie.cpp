@@ -6,9 +6,14 @@
 uint8_t buffer_parler[250];
 uint8_t buffer_entendre[250];
 
-static inline void wait_cycles(uint32_t n) {
+static inline void wait_cycles(uint32_t n) {//chatgpt sauf commentaire : delay bas niveau 
+//static signifie que c'est stocké en dehors de la pile, donc 
+//inline signifie que le compilateur mette le bout de code à chaque fois qu'on appel la fonction au lieu d'appelé la fonction
     while(n--) {
-        __asm__ volatile ("nop");
+        __asm__ volatile ("nop"); 
+        //__asm__ signifie que c'est de l'assembleur
+        //volatile signifie que elle est accessible
+        //"nop" signifie pour le processeur de ne rien faire
     }
 }
 
@@ -61,6 +66,7 @@ void setupADC(void) {  //source https://blog.thea.codes/reading-analog-values-wi
 
   /* Wait for bus synchronization. */
   while (GCLK->STATUS.bit.SYNCBUSY) {};
+  
   uint32_t bias = (*((uint32_t *)ADC_FUSES_BIASCAL_ADDR) & ADC_FUSES_BIASCAL_Msk) >> ADC_FUSES_BIASCAL_Pos;
   uint32_t linearity = (*((uint32_t *)ADC_FUSES_LINEARITY_0_ADDR) & ADC_FUSES_LINEARITY_0_Msk) >> ADC_FUSES_LINEARITY_0_Pos;
   linearity |= ((*((uint32_t *)ADC_FUSES_LINEARITY_1_ADDR) & ADC_FUSES_LINEARITY_1_Msk) >> ADC_FUSES_LINEARITY_1_Pos) << 5;
@@ -101,7 +107,7 @@ void setupADC(void) {  //source https://blog.thea.codes/reading-analog-values-wi
    - MUXPOST_PIN3 means that the ADC should read from AIN3, or PB09.
      This is A2 on the Feather M0 board.
 */
-  ADC->INPUTCTRL.reg = ADC_INPUTCTRL_GAIN_DIV2 | ADC_INPUTCTRL_MUXNEG_GND | ADC_INPUTCTRL_MUXPOS_PIN3;
+  ADC->INPUTCTRL.reg = ADC_INPUTCTRL_GAIN_DIV2 | ADC_INPUTCTRL_MUXNEG_GND | ADC_INPUTCTRL_MUXPOS_PIN2;
   /* Set PB09 as an input pin. */
   PORT->Group[1].DIRCLR.reg = PORT_PB08;
 
@@ -117,7 +123,23 @@ void setupADC(void) {  //source https://blog.thea.codes/reading-analog-values-wi
   ADC->CTRLA.bit.ENABLE = true;
 }
 
+uint8_t ADC_mesurement(void)
+{
+    /* Wait for bus synchronization. */
+while (ADC->STATUS.bit.SYNCBUSY) {};
 
+/* Start the ADC using a software trigger. */
+ADC->SWTRIG.bit.START = true;
+
+/* Wait for the result ready flag to be set. */
+while (ADC->INTFLAG.bit.RESRDY == 0);
+
+/* Clear the flag. */
+ADC->INTFLAG.reg = ADC_INTFLAG_RESRDY;
+
+/* Read the value. */
+return ADC->RESULT.reg;
+}
 
 void setupTimer_DAC(void) {//chatgpt (sauf commentaires)
   PM->APBCMASK.reg |= PM_APBCMASK_TC3;  //active la clock TC3 : PM est un pointeur vers la struct Pm définie dans pm.h ligne 521 comme suit :" __IO PM_APBCMASK_Type          APBCMASK;" APBCMASK est donc un membre de la struct Pm et on active la Clock grâce à un masque binaire qui active le douziéme bit (Atmel | SMART SAM D21 [DATASHEET] 127) grâce à une porte OU appliquée au registre APBC
@@ -158,29 +180,11 @@ void setupTimer_DAC(void) {//chatgpt (sauf commentaires)
     ;
 }
 
-uint8_t ADC_mesurement(void)
-{
-    /* Wait for bus synchronization. */
-while (ADC->STATUS.bit.SYNCBUSY) {};
-
-/* Start the ADC using a software trigger. */
-ADC->SWTRIG.bit.START = true;
-
-/* Wait for the result ready flag to be set. */
-while (ADC->INTFLAG.bit.RESRDY == 0);
-
-/* Clear the flag. */
-ADC->INTFLAG.reg = ADC_INTFLAG_RESRDY;
-
-/* Read the value. */
-return ADC->RESULT.reg;
-}
-
 // Routine d'interruption rapide et optimisée
 void TC3_Handler(void) {//chatgpt (sauf commentaires)
   static volatile uint16_t currentIndex = 0;
   TC3->COUNT16.INTFLAG.bit.MC0 = 1;  // Effacer immédiatement le flag
-  DAC->DATA.reg = buffer_parler[currentIndex];
+  DAC->DATA.reg = buffer_entendre[currentIndex];
   if (currentIndex >= sample_size) {//vider un buffer
     currentIndex = 0;
   }
@@ -190,6 +194,6 @@ void generatesample(void)
 {
   for (int i = 0; i < 1023; i++)
   {
-    buffer_parler[i] = i;
+    buffer_entendre[i] = i;
   }
 }

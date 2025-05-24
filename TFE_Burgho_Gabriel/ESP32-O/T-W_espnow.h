@@ -13,7 +13,7 @@
 #define pin_ENABLE_REGU D3
 #define sample_size 250
 #define pin_TENSION D0
-#define pin_BP_ALLUMAGE A2
+#define pin_BP_ALLUMAGE D2
 #define pin_MOSI D10
 #define pin_MISO D9
 #define pin_SCK D8

@@ -1,11 +1,8 @@
 #include "T-W_espnow.h"
 #define PARLER 1
 #define ENTENDRE 0
-
-
-void setup() {
-  Serial.begin(9600);
-  init_display(display_adress);
+void setup() 
+{
   pinMode(pin_PUSH_TO_TALK, INPUT_PULLUP);
   pinMode(pin_TENSION, INPUT);
   pinMode(pin_BP_ALLUMAGE, INPUT);
@@ -14,14 +11,18 @@ void setup() {
   pinMode(pin_CS, OUTPUT);
   pinMode(pin_SCK, OUTPUT);
   pinMode(pin_MOSI, OUTPUT);
+  digitalWrite(pin_ENABLE_REGU, 1);  // Active le régulateur
+
+  Serial.begin(9600);
+  init_display(display_adress);
+
 
   digitalWrite(pin_SCK, 0);
   digitalWrite(pin_MISO, 0);
   digitalWrite(pin_MOSI, 0);
   digitalWrite(pin_CS, 1);
-  delay(500);
+
   initEspNow();
-  digitalWrite(pin_ENABLE_REGU, 1);  // Active le régulateur
 }
 
 void choix_du_mode(bool mode)
@@ -33,16 +34,9 @@ void choix_du_mode(bool mode)
     digitalWrite(pin_SCK, 0);
     delayMicroseconds(2);
 }
+
 void loop() 
 {
-  
-  
-  
-  
-  
-  
-  
-  
   
   /*if (!digitalRead(pin_PUSH_TO_TALK))
   {//test envois
@@ -80,23 +74,29 @@ void loop()
     Serial.println(slave_data);
     digitalWrite(pin_CS, 1);
   */
-    
-  /*bool charge = 0;
+/*
+  if (digitalRead(pin_BP_ALLUMAGE))
+  {
+    if (!digitalRead(pin_BP_ALLUMAGE)) digitalWrite(pin_ENABLE_REGU, 0);
+  }
+
+  bool charge = 0;
   float tension = mesure_tension();//j'en fais une variable pour que les comparaisons se fassent à un instant t, si la tension varie.
   if (tension >= 3.7 && tension  <= 4.2)
   {
     digitalWrite(pin_ENABLE_REGU,1);
     charge = 0;
-    //if (digitalRead(pin_BP_ALLUMAGE)) digitalWrite(pin_ENABLE_REGU, 0);
   } else if (tension > 4.2) 
   {
     charge = 1;
   }
   if (tension <= 3.5) 
   {
+    while (digitalRead(pin_BP_ALLUMAGE));
     digitalWrite(pin_ENABLE_REGU,0);
   }
   display.setCursor(0,0);
   afficharge(tension, charge);
-  refresh();*/
+  refresh();
+  */
 }

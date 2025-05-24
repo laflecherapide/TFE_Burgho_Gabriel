@@ -15,14 +15,13 @@ void setup() {
   pinMode(pin_CS, OUTPUT);
   pinMode(pin_SCK, OUTPUT);
   pinMode(pin_MOSI, OUTPUT);
+  digitalWrite(pin_ENABLE_REGU, 1);  // Active le régulateur
 
   digitalWrite(pin_SCK, 0);
   digitalWrite(pin_MISO, 0);
   digitalWrite(pin_MOSI, 0);
   digitalWrite(pin_CS, 1);
-  delay(500);
   initEspNow();
-    digitalWrite(pin_ENABLE_REGU, 1);  // Active le régulateur
 }
 
 void choix_du_mode(bool mode)
