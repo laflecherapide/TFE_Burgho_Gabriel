@@ -15,6 +15,17 @@ esp_now_peer_info_t peerInfo;
 
 String success;
 
+static inline void wait_cycles(uint32_t n) {//chatgpt sauf commentaire : delay bas niveau 
+//static signifie que c'est stocké en dehors de la pile, donc 
+//inline signifie que le compilateur mette le bout de code à chaque fois qu'on appel la fonction au lieu d'appelé la fonction
+    while(n--) {
+        __asm__ volatile ("nop"); 
+        //__asm__ signifie que c'est de l'assembleur
+        //volatile signifie que elle est accessible
+        //"nop" signifie pour le processeur de ne rien faire
+    }
+}
+
 void set_pin(int pin,bool val)
 {
     gpio_set_level((gpio_num_t)pin, val);

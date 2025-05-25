@@ -43,3 +43,4 @@ float mesure_tension(void);
 void set_pin(int,bool);
 int read_pin(int);
 void choix_du_mode(bool);
+static inline void wait_cycles(uint32_t);

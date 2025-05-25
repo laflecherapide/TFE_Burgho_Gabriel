@@ -81,7 +81,17 @@ void loop()
     Serial.println(slave_data);
     digitalWrite(pin_CS, 1);
   */
+
   /*
+  //***************BMS*****************
+
+  if (digitalRead(pin_BP_ALLUMAGE))
+  {
+    while(digitalRead(pin_BP_ALLUMAGE));
+    wait_cycles(20000);
+    digitalWrite(pin_ENABLE_REGU, 0);
+  }
+  
   if (digitalRead(pin_BP_ALLUMAGE))
   {
     if (!digitalRead(pin_BP_ALLUMAGE)) digitalWrite(pin_ENABLE_REGU, 0);
