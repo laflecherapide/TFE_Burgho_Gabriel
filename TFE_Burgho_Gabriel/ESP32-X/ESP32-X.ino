@@ -28,6 +28,12 @@ void setup()
 
 void loop() 
 {
+  diplay.setCursor(0,0);
+  display.print(analogReadMilliVolts(pin_TENSION));
+  display.display();
+  display.clearDisplay();
+
+  /*
   if (!digitalRead(pin_PUSH_TO_TALK))
   {//test envois
     digitalWrite(pin_CS,0);
@@ -55,33 +61,7 @@ void loop()
       Serial.println("envois raté");
     }
   }
-/*envois 
-      digitalWrite(pin_MOSI, bitRead(send_data, i));
-      delayMicroseconds(2);
-      digitalWrite(pin_SCK, 1);
-      delayMicroseconds(2);
-      digitalWrite(pin_SCK,0);
-      delayMicroseconds(2);
 */
-
-
-  /*
-    slave_data = 0;
-    reception
-    digitalWrite(pin_CS,0);
-    for (int i = 0;i<8;i++)
-    {
-      digitalWrite(pin_SCK, 1);
-      delayMicroseconds(2);
-      bitWrite(slave_data, i, digitalRead(pin_MISO));
-      delayMicroseconds(2);
-      digitalWrite(pin_SCK,0);
-      delayMicroseconds(2);
-    }
-    Serial.println(slave_data);
-    digitalWrite(pin_CS, 1);
-  */
-
   /*
   //***************BMS*****************
 
@@ -90,11 +70,6 @@ void loop()
     while(digitalRead(pin_BP_ALLUMAGE));
     wait_cycles(20000);
     digitalWrite(pin_ENABLE_REGU, 0);
-  }
-  
-  if (digitalRead(pin_BP_ALLUMAGE))
-  {
-    if (!digitalRead(pin_BP_ALLUMAGE)) digitalWrite(pin_ENABLE_REGU, 0);
   }
 
   bool charge = 0;

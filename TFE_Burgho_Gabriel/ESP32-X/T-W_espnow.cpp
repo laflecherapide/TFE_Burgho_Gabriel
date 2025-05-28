@@ -35,7 +35,7 @@ int read_pin(int pin)
   return gpio_get_level((gpio_num_t)pin);
 }
 
-float mesure_tension(void)
+float mesure_tension(void)//https://wiki.seeedstudio.com/XIAO_ESP32C3_Getting_Started/
 {
 uint32_t Vbatt = 0;
   for(int i = 0; i < 16; i++) {
@@ -75,7 +75,7 @@ void init_display(const byte adress)
 }
 
 void initEspNow(void) 
-{
+{//librairie prise de monsieur Kapita
   WiFi.mode(WIFI_STA);
   WiFi.disconnect();  // Éviter les conflits Wi-Fi
 
@@ -126,7 +126,7 @@ void choix_du_mode(bool mode)
 // Callback when data is received
 void OnDataRecv(const uint8_t *mac_O, const uint8_t *incomingData, int len) 
 {
-  memcpy(buffer_entendre, incomingData, sizeof(buffer_entendre));
+  memcpy(buffer_entendre, incomingData, sizeof(buffer_entendre));//destination, source, taille
   digitalWrite(pin_CS, 0);
   choix_du_mode(ENTENDRE);
   for (int u = 0; u < 250; u++)
