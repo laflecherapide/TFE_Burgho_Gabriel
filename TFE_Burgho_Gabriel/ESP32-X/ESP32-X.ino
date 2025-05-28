@@ -28,12 +28,12 @@ void setup()
 
 void loop() 
 {
-  diplay.setCursor(0,0);
+  /*diplay.setCursor(0,0);
   display.print(analogReadMilliVolts(pin_TENSION));
   display.display();
-  display.clearDisplay();
+  display.clearDisplay();*/
 
-  /*
+  
   if (!digitalRead(pin_PUSH_TO_TALK))
   {//test envois
     digitalWrite(pin_CS,0);
@@ -61,7 +61,7 @@ void loop()
       Serial.println("envois raté");
     }
   }
-*/
+
   /*
   //***************BMS*****************
 
