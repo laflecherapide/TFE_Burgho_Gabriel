@@ -9,7 +9,7 @@
 - **Year :** 6th qualification technique in electronics
 - **Promoter :** M.Mazzeo
 ## Demonstration footage
-
+https://github.com/user-attachments/assets/cce3e424-6375-48ba-9259-8c47d737424b
 
 ## Summary
 
@@ -22,12 +22,7 @@ The name T-talkie is a reference to typical gangster name.
 
 ## Caracteristics
 
-
-## Limitation
-
-
 # Hardware
-
 ### Componants :
 -feather m0 express x1
 
