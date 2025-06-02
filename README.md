@@ -122,6 +122,9 @@ The name T-talkie is a reference to typical gangster name.
 </p>
 
 ### Library
+-Adafruit_SSD1306 2.5.7 https://github.com/adafruit/Adafruit_SSD1306
+-Adafruit_GFX 1.11.10 https://github.com/adafruit/Adafruit-GFX-Library
+-
 
 ## source
 
