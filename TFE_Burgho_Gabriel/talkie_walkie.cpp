@@ -179,14 +179,23 @@ void setupTimer_DAC(void) {//chatgpt (sauf commentaires)
   while (TC3->COUNT16.STATUS.bit.SYNCBUSY)
     ;
 }
+void TC3_Handler(void) 
+{//entree ADC
+  //routine d'interruption
+  static volatile uint16_t currentIndex_ADC = 0;
+  TC3->COUNT16.INTFLAG.bit.MC0 = 1; // clears the interrupt
+  buffer_parler[currentIndex_ADC] = analogRead(A1);
+}
 
-// Routine d'interruption rapide et optimisée
-void TC3_Handler(void) {//chatgpt (sauf commentaires)
-  static volatile uint16_t currentIndex = 0;
-  TC3->COUNT16.INTFLAG.bit.MC0 = 1;  // Effacer immédiatement le flag
-  DAC->DATA.reg = buffer_entendre[currentIndex];
-  if (currentIndex >= sample_size) {//vider un buffer
-    currentIndex = 0;
+void TC4_Handler(void) 
+{//sortie DAC
+  //routine d'interruption
+  static volatile uint16_t currentIndex_DAC = 0;
+  TC4->COUNT16.INTFLAG.bit.MC0 = 1; // clears the interrupt
+  fast_analogWrite(A0, buffer_entendre[currentIndex_DAC]);
+  if (currentIndex_DAC >= sample_size) 
+  {//vider un buffer
+    currentIndex_DAC = 0;
   }
 }
 
@@ -196,4 +205,46 @@ void generatesample(void)
   {
     buffer_entendre[i] = i;
   }
+}
+
+void fast_analogRead()
+{
+
+}
+void fast_analogWrite(uint32_t pin, uint32_t value)
+{
+  PinDescription pinDesc = g_APinDescription[pin];
+  uint32_t attr = pinDesc.ulPinAttribute;
+	value = mapResolution(value, _writeResolution, _dacResolution);
+	uint8_t channel = (pin == PIN_DAC0 ? 0 : 1);
+
+			pinPeripheral(pin, PIO_ANALOG);
+
+			if(!dacEnabled[channel])
+      {
+				dacEnabled[channel] = true;
+
+				while (DAC->SYNCBUSY.bit.ENABLE || DAC->SYNCBUSY.bit.SWRST);
+				DAC->CTRLA.bit.ENABLE = 0;     // disable DAC
+
+				while (DAC->SYNCBUSY.bit.ENABLE || DAC->SYNCBUSY.bit.SWRST);
+				DAC->DACCTRL[channel].bit.ENABLE = 1;
+
+				while (DAC->SYNCBUSY.bit.ENABLE || DAC->SYNCBUSY.bit.SWRST);
+				DAC->CTRLA.bit.ENABLE = 1;     // enable DAC
+
+				if(channel == 0){
+
+					while ( !DAC->STATUS.bit.READY0 );
+
+					while (DAC->SYNCBUSY.bit.DATA0);
+					DAC->DATA[0].reg = value;
+				}
+				else if(channel == 1){
+					while ( !DAC->STATUS.bit.READY1 );
+
+					while (DAC->SYNCBUSY.bit.DATA1);
+					DAC->DATA[1].reg = value;
+				}
+			}
 }

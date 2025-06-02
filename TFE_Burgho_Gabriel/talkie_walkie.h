@@ -46,10 +46,9 @@ config DAC
 //****************LIBRAIRIE*****************
 #include <Arduino.h>
 #include <math.h>
-#include <SPI.h>
 #include <Wire.h>
-#include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>
+#include <fast_samd21_tc3.h>
+#include <fast_samd21_tc4.h>
 //doc : https://learn.adafruit.com/using-atsamd21-sercom-to-add-more-spi-i2c-serial-ports?view=all#creating-a-new-serial
 
 #define AMPLITUDE 512

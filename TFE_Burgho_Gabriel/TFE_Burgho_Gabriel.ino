@@ -12,7 +12,11 @@ void setup() {
   pinMode(pin_SHUTDOWN, OUTPUT);
 
   digitalWrite(pin_MISO, 0);
-  digitalWrite(pin_SHUTDOWN, 0);  //active le shutdown
+  digitalWrite(pin_SHUTDOWN, 1);  //active le shutdown ampli AB
+
+  fast_samd21_tc4_configure(100000);//µs
+  fast_samd21_tc3_configure(100000);//µs
+  
 }
 
 void loop() {
@@ -53,28 +57,31 @@ void loop() {
     bool mode = digitalRead(pin_MOSI);
     while (digitalRead(pin_SCK));
 
-    while(mode)
+    while(mode && digitalRead(pin_CS))
     {
-      buffer_parler[0] = analogRead(A1);
+      //analogread
+      
         for (int i = 0; i < 8; i ++)
           {
             while (!digitalRead(pin_SCK));
             digitalWrite(pin_MISO, bitRead(buffer_parler[0] , i));
             while (digitalRead(pin_SCK));
           }
-      if (digitalRead(pin_CS)) break;
     }
-    while (!mode)
+    while (!mode && digitalRead(pin_CS))
     {
-      digitalWrite(pin_SHUTDOWN, 1);
+      for (int u = 0; u < 250; u++)
+      {
         for (int i = 0; i < 8; i++) 
           {
             while (!digitalRead(pin_SCK));
-            bitWrite(buffer_entendre[0], i, digitalRead(pin_MOSI));
+            bitWrite(buffer_entendre[u], i, digitalRead(pin_MOSI));
             while (digitalRead(pin_SCK));
           }
-      analogWrite(A0, buffer_entendre[0]);
-      if (digitalRead(pin_CS)) break;
+      }
+      digitalWrite(pin_SHUTDOWN, 1);//desactive shutdown
+      //active TC4
+        
     }
   }
 }

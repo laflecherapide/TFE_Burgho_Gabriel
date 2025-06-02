@@ -3,10 +3,12 @@
 #include <esp_now.h>
 #include <WiFi.h>
 #include <esp_wifi.h>
+
 #include <math.h>
+
 #include <Wire.h>
-#include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>
+#include <Adafruit_GFX.h>//1.11.10
+#include <Adafruit_SSD1306.h>//2.5.7
 
 #define WIRE Wire
 #define pin_PUSH_TO_TALK D6
