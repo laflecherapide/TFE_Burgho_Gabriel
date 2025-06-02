@@ -23,7 +23,7 @@ The name T-talkie is a reference to typical gangster name.
 ## Caracteristics
 
 # Hardware
-### Componants :
+### Componants for one talkie:
 -feather m0 express x1
 
 -Seeed Studio XIAO ESP32C3 x1
@@ -53,22 +53,37 @@ The name T-talkie is a reference to typical gangster name.
 -push button x2
 
 -resistances :
+
   -100K x2
+  
   -10K x5
+  
   -4K7 x2
+  
   -20K x2
+  
   -470 x1
+  
   -2K x1
+  
   -0 x1
+  
   -2K2 x1
+  
   -1K x2
   
 -capacitors :
+
   -4.7µ x3
+  
   -10n x1
+  
   -1µ x1
+  
   -3.3n x2
+  
   -1.5µ x2
+  
   -1m x1
   
 -speaker 8Ohm x2
