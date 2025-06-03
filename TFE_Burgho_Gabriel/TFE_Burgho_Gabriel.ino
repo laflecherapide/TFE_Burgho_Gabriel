@@ -1,9 +1,9 @@
 //****************LIBRAIRIE*****************
 #include "talkie_walkie.h"
 
-void setup() {
-  analogWriteResolution(8);
-  analogReadResolution(8);
+void setup() 
+{
+  setupDAC();
 
   pinMode(pin_MOSI, INPUT);
   pinMode(pin_MISO, OUTPUT);
@@ -14,12 +14,13 @@ void setup() {
   digitalWrite(pin_MISO, 0);
   digitalWrite(pin_SHUTDOWN, 1);  //active le shutdown ampli AB
 
-  fast_samd21_tc4_configure(100000);//µs
-  fast_samd21_tc3_configure(100000);//µs
+  fast_samd21_tc4_configure(100);//µs
+  fast_samd21_tc3_configure(100);//µs
   
 }
 
-void loop() {
+void loop() 
+{
   //*********communication simplex pour les tests**********************
   /*
   if (!digitalRead(pin_CS))//pcb_X
@@ -48,40 +49,57 @@ void loop() {
     digitalWrite(pin_SHUTDOWN, 0);  //active le shutdown
   }
 */
-
+volatile byte indexe_vider_adc = 0;
   //**************communication half duplex avec choix du mode***********
   if (!digitalRead(pin_CS)) 
-  {
-    digitalWrite(pin_SHUTDOWN, 0);
-    while (!digitalRead(pin_SCK));  //communication half duplex, le premier bit est pour le choix du mode, 1 si c'est pour parler et 0 pour écouter
-    bool mode = digitalRead(pin_MOSI);
-    while (digitalRead(pin_SCK));
-
-    while(mode && digitalRead(pin_CS))
     {
-      //analogread
-      
-        for (int i = 0; i < 8; i ++)
-          {
-            while (!digitalRead(pin_SCK));
-            digitalWrite(pin_MISO, bitRead(buffer_parler[0] , i));
-            while (digitalRead(pin_SCK));
-          }
+      while (!digitalRead(pin_SCK));  //communication half duplex, le premier bit est pour le choix du mode, 1 si c'est pour parler et 0 pour écouter
+      bool mode = digitalRead(pin_MOSI);
+      while (digitalRead(pin_SCK));
+      if (mode)
+        {
+          //active TC ADC
+          fast_samd21_tc3_start();
+              for (int i = 0; i < 8; i ++)
+                {
+                  while (!digitalRead(pin_SCK));
+                  digitalWrite(pin_MISO, bitRead(buffer_parler[indexe_vider_adc] , i));
+                  while (digitalRead(pin_SCK));
+                }
+                indexe_vider_adc++;
+                if (indexe_vider_adc >= sample_size) indexe_vider_adc = 0;
+      } else {
+          //active TC DAC
+          fast_samd21_tc4_start();
+        }
     }
-    while (!mode && digitalRead(pin_CS))
-    {
-      for (int u = 0; u < 250; u++)
+    if(currentIndex_ADC >= sample_size)//buffer plein
       {
-        for (int i = 0; i < 8; i++) 
+        //desactive TC
+        fast_samd21_tc3_stop();
+        for (int u = 0; u < 250; u++)
           {
-            while (!digitalRead(pin_SCK));
-            bitWrite(buffer_entendre[u], i, digitalRead(pin_MOSI));
-            while (digitalRead(pin_SCK));
+            for (int i = 0; i < 8; i ++)
+              {
+                while (!digitalRead(pin_SCK));
+                digitalWrite(pin_MISO, bitRead(buffer_parler[u] , i));
+                while (digitalRead(pin_SCK));
+              }
           }
       }
-      digitalWrite(pin_SHUTDOWN, 1);//desactive shutdown
+    if ()//mode
+      {
+        //desactive TC
+        for (int u = 0; u < 250; u++)
+          {
+            for (int i = 0; i < 8; i++) 
+              {
+                while (!digitalRead(pin_SCK));
+                bitWrite(buffer_entendre[u], i, digitalRead(pin_MOSI));
+                while (digitalRead(pin_SCK));
+              }
+          }
       //active TC4
         
-    }
-  }
+      }
 }

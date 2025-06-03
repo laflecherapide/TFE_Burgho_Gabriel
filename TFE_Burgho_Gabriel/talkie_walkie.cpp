@@ -44,7 +44,7 @@ int fast_digitalRead( uint32_t ulPin )
   return LOW ;
 }
 
-void setupDAC(void) {//chatgpt (sauf les commentaires)
+/*void setupDAC(void) {//chatgpt (sauf les commentaires)
   DAC->CTRLA.bit.ENABLE = 0;  //DAC est un pointer et on accede au membre CTRLA.bit.ENABLE grace à l'opérateur "->" et on le met à 0 ce qui désactive le DAC ce qui est nécessaire pour le configurer. CTRLA est une struct bit est une sous struct et ENABLE est un membre de la sous struct bit.
   while (DAC->STATUS.bit.SYNCBUSY)
     ;
@@ -56,7 +56,7 @@ void setupDAC(void) {//chatgpt (sauf les commentaires)
   DAC->CTRLA.bit.ENABLE = 1;
   while (DAC->STATUS.bit.SYNCBUSY)
     ;  //attend que le bit de synchronisation avec le CPU Atmel | SMART SAM D21 [DATASHEET] 89
-}
+}*/
 
 void setupADC(void) {  //source https://blog.thea.codes/reading-analog-values-with-the-samd-adc/
   /* Enable the APB clock for the ADC. */
@@ -180,19 +180,22 @@ void setupTimer_DAC(void) {//chatgpt (sauf commentaires)
     ;
 }
 void TC3_Handler(void) 
-{//entree ADC
-  //routine d'interruption
+{//entree ADC remplir buffer
   static volatile uint16_t currentIndex_ADC = 0;
   TC3->COUNT16.INTFLAG.bit.MC0 = 1; // clears the interrupt
   buffer_parler[currentIndex_ADC] = analogRead(A1);
+  currentIndex_ADC++
+  if (currentIndex_ADC >= sample_size) 
+  {//vider un buffer
+    currentIndex_ADC = 0;
+  }
 }
 
 void TC4_Handler(void) 
-{//sortie DAC
-  //routine d'interruption
+{//sortie DAC vider buffer
   static volatile uint16_t currentIndex_DAC = 0;
   TC4->COUNT16.INTFLAG.bit.MC0 = 1; // clears the interrupt
-  fast_analogWrite(A0, buffer_entendre[currentIndex_DAC]);
+  analogWriteDAC(buffer_entendre[currentIndex_DAC]);
   if (currentIndex_DAC >= sample_size) 
   {//vider un buffer
     currentIndex_DAC = 0;
@@ -201,50 +204,39 @@ void TC4_Handler(void)
 
 void generatesample(void)
 {
-  for (int i = 0; i < 1023; i++)
+  for (int i = 0; i < 250; i++)
   {
     buffer_entendre[i] = i;
   }
 }
 
-void fast_analogRead()
-{
+// Initialize DAC only once
+void setupDAC() {
+  // Enable the DAC peripheral clock
+  PM->APBCMASK.reg |= PM_APBCMASK_DAC;
 
+  // Configure the GCLK for DAC
+  GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID(DAC_GCLK_ID) |
+                      GCLK_CLKCTRL_GEN_GCLK0 | // Use Generic Clock Generator 0
+                      GCLK_CLKCTRL_CLKEN;
+  while (GCLK->STATUS.bit.SYNCBUSY);
+
+  // Reset DAC
+  DAC->CTRLA.bit.SWRST = 1;
+  while (DAC->CTRLA.bit.SWRST);
+
+  // Set voltage reference to AVCC
+  DAC->CTRLB.reg = DAC_CTRLB_EOEN | DAC_CTRLB_REFSEL_AVCC;
+
+  // Enable DAC
+  DAC->CTRLA.bit.ENABLE = 1;
+  while (DAC->STATUS.bit.SYNCBUSY);
 }
-void fast_analogWrite(uint32_t pin, uint32_t value)
-{
-  PinDescription pinDesc = g_APinDescription[pin];
-  uint32_t attr = pinDesc.ulPinAttribute;
-	value = mapResolution(value, _writeResolution, _dacResolution);
-	uint8_t channel = (pin == PIN_DAC0 ? 0 : 1);
 
-			pinPeripheral(pin, PIO_ANALOG);
+// Write a 12-bit value (0-4095) to the DAC
+inline void analogWriteDAC(uint16_t value) {
+  if (value > 4095) value = 4095; // Clamp to 12-bit max
 
-			if(!dacEnabled[channel])
-      {
-				dacEnabled[channel] = true;
-
-				while (DAC->SYNCBUSY.bit.ENABLE || DAC->SYNCBUSY.bit.SWRST);
-				DAC->CTRLA.bit.ENABLE = 0;     // disable DAC
-
-				while (DAC->SYNCBUSY.bit.ENABLE || DAC->SYNCBUSY.bit.SWRST);
-				DAC->DACCTRL[channel].bit.ENABLE = 1;
-
-				while (DAC->SYNCBUSY.bit.ENABLE || DAC->SYNCBUSY.bit.SWRST);
-				DAC->CTRLA.bit.ENABLE = 1;     // enable DAC
-
-				if(channel == 0){
-
-					while ( !DAC->STATUS.bit.READY0 );
-
-					while (DAC->SYNCBUSY.bit.DATA0);
-					DAC->DATA[0].reg = value;
-				}
-				else if(channel == 1){
-					while ( !DAC->STATUS.bit.READY1 );
-
-					while (DAC->SYNCBUSY.bit.DATA1);
-					DAC->DATA[1].reg = value;
-				}
-			}
+  DAC->DATA.reg = value;
+  while (DAC->STATUS.bit.SYNCBUSY);
 }
