@@ -5,8 +5,8 @@
 #include <Arduino.h>
 #include <math.h>
 #include <Wire.h>
-#include <fast_samd21_tc3.h>//0.3
-#include <fast_samd21_tc4.h>//0.3
+#include "fast_samd21_tc3.h"//0.3
+#include "fast_samd21_tc4.h"//0.3
 
 //doc : https://learn.adafruit.com/using-atsamd21-sercom-to-add-more-spi-i2c-serial-ports?view=all#creating-a-new-serial
 
