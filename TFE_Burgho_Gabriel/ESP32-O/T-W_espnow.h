@@ -1,15 +1,14 @@
 //esp now : https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/network/esp_now.html
 //SPI bit banging : https://circuitdigest.com/article/introduction-to-bit-banging-spi-communication-in-arduino-via-bit-banging
+//*****librairie****
 #include <esp_now.h>
 #include <WiFi.h>
 #include <esp_wifi.h>
-
 #include <math.h>
-
 #include <Wire.h>
 #include <Adafruit_GFX.h>//1.11.10
 #include <Adafruit_SSD1306.h>//2.5.7
-
+//****macro******
 #define WIRE Wire
 #define pin_PUSH_TO_TALK D6
 #define pin_ENABLE_REGU D3
@@ -22,7 +21,7 @@
 #define pin_CS D7
 #define PARLER 1
 #define ENTENDRE 0
-
+//*****variable*******
 extern uint8_t buffer_parler[];
 extern uint8_t buffer_entendre[];
 extern uint8_t sample[];
@@ -31,9 +30,9 @@ extern const uint8_t mac_X[];
 extern esp_now_peer_info_t peerInfo;
 extern String success;
 extern const byte display_adress;
-
+//****objet*****
 extern Adafruit_SSD1306 display;
-
+//*****fonction*******
 void init_display(const byte);
 void initEspNow(void);
 void OnDataRecv(const uint8_t *, const uint8_t *, int );

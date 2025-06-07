@@ -28,7 +28,8 @@ void setup()
 
 
 void loop() 
-{ if (!digitalRead(pin_PUSH_TO_TALK))
+{
+   if (!digitalRead(pin_PUSH_TO_TALK))
   {//test envois
     digitalWrite(pin_CS,0);
     choix_du_mode(PARLER);
@@ -37,7 +38,6 @@ void loop()
       for (int i = 0; i < 8;i++)
     {
       digitalWrite(pin_SCK, 1);
-      delayMicroseconds(2);
       bitWrite(buffer_parler[u], i, digitalRead(pin_MISO));
       delayMicroseconds(2);
       digitalWrite(pin_SCK,0);
@@ -62,7 +62,6 @@ void loop()
     for (int i = 0;i<8;i++)
     {
       digitalWrite(pin_SCK, 1);
-      delayMicroseconds(2);
       bitWrite(slave_data, i, digitalRead(pin_MISO));
       delayMicroseconds(2);
       digitalWrite(pin_SCK,0);
@@ -79,7 +78,7 @@ void loop()
   if (digitalRead(pin_BP_ALLUMAGE))
   {
     while(digitalRead(pin_BP_ALLUMAGE));
-    wait_cycles(20000);
+    wait_cycles(2000000000);//160MHz 1.25s
     digitalWrite(pin_ENABLE_REGU, 0);
   }
 

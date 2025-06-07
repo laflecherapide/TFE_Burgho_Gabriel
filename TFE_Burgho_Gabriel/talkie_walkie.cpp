@@ -1,20 +1,8 @@
-//#include "samd21/include/samd21g18a.h"
 //****************LIBRAIRIE*****************
 #include "talkie_walkie.h"
 
-uint8_t buffer_parler[250];
-uint8_t buffer_entendre[250];
-
-static inline void wait_cycles(uint32_t n) {//chatgpt sauf commentaire : delay bas niveau 
-//static signifie que c'est stocké en dehors de la pile, donc 
-//inline signifie que le compilateur mette le bout de code à chaque fois qu'on appel la fonction au lieu d'appelé la fonction
-    while(n--) {
-        __asm__ volatile ("nop"); 
-        //__asm__ signifie que c'est de l'assembleur
-        //volatile signifie que elle est accessible
-        //"nop" signifie pour le processeur de ne rien faire
-    }
-}
+uint8_t buffer_parler[sample_size];
+uint8_t buffer_entendre[sample_size];
 
 void fast_digitalWrite( uint32_t ulPin, uint32_t ulVal )
 {
@@ -126,30 +114,6 @@ ADC->INTFLAG.reg = ADC_INTFLAG_RESRDY;
 return ADC->RESULT.reg;
 }
 
-void TC3_Handler(void) 
-{//entree ADC remplir buffer
-  static volatile uint16_t currentIndex = 0;
-  buffer_parler[currentIndex] = analogRead(A1);
-  currentIndex++;
-  TC3->COUNT16.INTFLAG.bit.MC0 = 1; // clears the interrupt
-  if (currentIndex >= sample_size) 
-  {//revenir à la valeur 0 du tableau
-    currentIndex = 0;
-  }
-}
-
-void TC4_Handler(void) 
-{//sortie DAC vider buffer
-  static volatile uint16_t currentIndex = 0;
-  analogWriteDAC(buffer_entendre[currentIndex]);
-  currentIndex++;
-  TC4->COUNT16.INTFLAG.bit.MC0 = 1; // clears the interrupt
-  if (currentIndex >= sample_size) 
-  {//vider un buffer
-    currentIndex = 0;
-  }
-}
-
 void generatesample(void)
 {
   for (int i = 0; i < 250; i++)
@@ -158,31 +122,29 @@ void generatesample(void)
   }
 }
 
-void setupDAC() {//chatgpt
-  // Enable the DAC peripheral clock
+/*void setupDAC_8bit() {
+  // Activer l'horloge du DAC
   PM->APBCMASK.reg |= PM_APBCMASK_DAC;
 
-  // Configure the GCLK for DAC
+  // Sélectionner le générateur d'horloge pour le DAC
   GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID(DAC_GCLK_ID) |
-                      GCLK_CLKCTRL_GEN_GCLK0 | // Use Generic Clock Generator 0
+                      GCLK_CLKCTRL_GEN_GCLK0 |
                       GCLK_CLKCTRL_CLKEN;
   while (GCLK->STATUS.bit.SYNCBUSY);
 
-  // Reset DAC
+  // Réinitialiser le DAC
   DAC->CTRLA.bit.SWRST = 1;
-  while (DAC->CTRLA.bit.SWRST);
+  while (DAC->CTRLA.bit.SWRST || DAC->STATUS.bit.SYNCBUSY);
 
-  // Set voltage reference to AVCC
+  // Configurer la référence de tension et activer la sortie
   DAC->CTRLB.reg = DAC_CTRLB_EOEN | DAC_CTRLB_REFSEL_AVCC;
 
-  // Enable DAC
+  // Activer le DAC
   DAC->CTRLA.bit.ENABLE = 1;
   while (DAC->STATUS.bit.SYNCBUSY);
 }
 
-inline void analogWriteDAC(uint16_t value) {//chatgpt
-  if (value > 4095) value = 4095; // Clamp to 12-bit max
-
-  DAC->DATA.reg = value;
+inline void analogWriteDAC_8bit(uint8_t value) {
+  DAC->DATA.reg = value << 2;  // Écriture 8 bits → converti en 10 bits (alignement à droite)
   while (DAC->STATUS.bit.SYNCBUSY);
-}
+}*/
