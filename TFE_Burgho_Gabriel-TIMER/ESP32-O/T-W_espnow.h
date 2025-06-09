@@ -1,0 +1,47 @@
+//esp now : https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/network/esp_now.html
+//SPI bit banging : https://circuitdigest.com/article/introduction-to-bit-banging-spi-communication-in-arduino-via-bit-banging
+//*****librairie****
+#include <esp_now.h>
+#include <WiFi.h>
+#include <esp_wifi.h>
+#include <math.h>
+#include <Wire.h>
+#include <Adafruit_GFX.h>//1.11.10
+#include <Adafruit_SSD1306.h>//2.5.7
+//****macro******
+#define WIRE Wire
+#define pin_PUSH_TO_TALK D6
+#define pin_ENABLE_REGU D3
+#define sample_size 250
+#define pin_TENSION D0
+#define pin_BP_ALLUMAGE D2
+#define pin_MOSI D10
+#define pin_MISO D9
+#define pin_SCK D8
+#define pin_CS D7
+#define PARLER 1
+#define ENTENDRE 0
+//*****variable*******
+extern uint8_t buffer_parler[];
+extern uint8_t buffer_entendre[];
+extern uint8_t sample[];
+extern const uint8_t mac_O[];
+extern const uint8_t mac_X[];
+extern esp_now_peer_info_t peerInfo;
+extern String success;
+extern const byte display_adress;
+//****objet*****
+extern Adafruit_SSD1306 display;
+//*****fonction*******
+void init_display(const byte);
+void initEspNow(void);
+void OnDataRecv(const uint8_t *, const uint8_t *, int );
+void generateSample(void);
+void OnDataSent(const uint8_t *, esp_now_send_status_t );
+void refresh(void);
+void afficharge(float,bool);
+float mesure_tension(void);
+void set_pin(int,bool);
+int read_pin(int);
+void choix_du_mode(bool);
+static inline void wait_cycles(uint32_t);

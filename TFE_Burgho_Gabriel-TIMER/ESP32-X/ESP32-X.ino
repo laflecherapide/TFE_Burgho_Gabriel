@@ -28,27 +28,13 @@ void setup()
 
 void loop() 
 {
-  if(!digitalRead(pin_PUSH_TO_TALK))
-  {
-    digitalWrite(pin_CS, 0);
-    for (int u = 0; u < 250; u++)
-    {
-      for (int i = 0; i < 8;i++)
-    {
-      digitalWrite(pin_SCK, 1);
-      delayMicroseconds(2);
-      bitWrite(buffer_parler[u], i, digitalRead(pin_MISO));
-      Serial.print(digitalRead(pin_MISO));
-      delayMicroseconds(2);
-      digitalWrite(pin_SCK,0);
-      delayMicroseconds(2);
-    }
-    Serial.printf("\t %d \n", buffer_parler[u]);
-    }
-  }
-  digitalWrite(pin_CS, 1);
-  /*
-   if (!digitalRead(pin_PUSH_TO_TALK))
+  /*diplay.setCursor(0,0);
+  display.print(analogReadMilliVolts(pin_TENSION));
+  display.display();
+  display.clearDisplay();*/
+
+  
+  if (!digitalRead(pin_PUSH_TO_TALK))
   {//test envois
     digitalWrite(pin_CS,0);
     choix_du_mode(PARLER);
@@ -57,6 +43,7 @@ void loop()
       for (int i = 0; i < 8;i++)
     {
       digitalWrite(pin_SCK, 1);
+      delayMicroseconds(2);
       bitWrite(buffer_parler[u], i, digitalRead(pin_MISO));
       delayMicroseconds(2);
       digitalWrite(pin_SCK,0);
@@ -65,7 +52,7 @@ void loop()
     Serial.println(buffer_parler[u]);
     }
     digitalWrite(pin_CS, 1);
-    esp_err_t result = esp_now_send(mac_X, buffer_parler, sizeof(buffer_parler));
+    esp_err_t result = esp_now_send(mac_O, buffer_parler, sizeof(buffer_parler));
     if (result == ESP_OK)
     {
       Serial.println("envois réussi");
@@ -73,33 +60,15 @@ void loop()
     {
       Serial.println("envois raté");
     }
-  }*/
-
+  }
 
   /*
-    slave_data = 0;
-    reception
-    digitalWrite(pin_CS,0);
-    for (int i = 0;i<8;i++)
-    {
-      digitalWrite(pin_SCK, 1);
-      bitWrite(slave_data, i, digitalRead(pin_MISO));
-      delayMicroseconds(2);
-      digitalWrite(pin_SCK,0);
-      delayMicroseconds(2);
-    }
-    Serial.println(slave_data);
-    digitalWrite(pin_CS, 1);
-  */
-
-
-/*
-//***************BMS*****************
+  //***************BMS*****************
 
   if (digitalRead(pin_BP_ALLUMAGE))
   {
     while(digitalRead(pin_BP_ALLUMAGE));
-    wait_cycles(2000000000);//160MHz 1.25s
+    wait_cycles(20000);
     digitalWrite(pin_ENABLE_REGU, 0);
   }
 
