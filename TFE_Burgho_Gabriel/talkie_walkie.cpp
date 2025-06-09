@@ -44,3 +44,29 @@ int fast_digitalRead( uint32_t ulPin )
   return LOW ;
 }
 
+void setupDAC_8bit() {
+  // Activer l'horloge du DAC
+  PM->APBCMASK.reg |= PM_APBCMASK_DAC;
+
+  // Sélectionner le générateur d'horloge pour le DAC
+  GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID(DAC_GCLK_ID) |
+                      GCLK_CLKCTRL_GEN_GCLK0 |
+                      GCLK_CLKCTRL_CLKEN;
+  while (GCLK->STATUS.bit.SYNCBUSY);
+
+  // Réinitialiser le DAC
+  DAC->CTRLA.bit.SWRST = 1;
+  while (DAC->CTRLA.bit.SWRST || DAC->STATUS.bit.SYNCBUSY);
+
+  // Configurer la référence de tension et activer la sortie
+  DAC->CTRLB.reg = DAC_CTRLB_EOEN | DAC_CTRLB_REFSEL_AVCC;
+
+  // Activer le DAC
+  DAC->CTRLA.bit.ENABLE = 1;
+  while (DAC->STATUS.bit.SYNCBUSY);
+}
+
+inline void analogWriteDAC_8bit(uint8_t value) {
+  DAC->DATA.reg = value << 2;  // Écriture 8 bits → converti en 10 bits (alignement à droite)
+  while (DAC->STATUS.bit.SYNCBUSY);
+}
