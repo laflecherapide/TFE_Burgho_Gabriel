@@ -11,16 +11,11 @@
 ## Demonstration footage
 https://github.com/user-attachments/assets/cce3e424-6375-48ba-9259-8c47d737424b
 
-## Summary
-
-
 ## Introdution
 
 I chose to make a pair of talkie-walkie as a project in electronics because it combines two major domain in electronics : analogic and wireless communication.
 My goal was to increase my knowledge in both of those wich i did.
 The name T-talkie is a reference to typical gangster name.
-
-## Caracteristics
 
 # Hardware
 ### Componants for one talkie:
@@ -143,7 +138,6 @@ The name T-talkie is a reference to typical gangster name.
 
 -fast_samd21_tc 0.3 https://gitlab.com/ug-cp/fast_samd21_tc
 
-## source
 
 -TFE :
 [TFE Burgho_Gabriel.pdf](https://github.com/user-attachments/files/20495096/TFE.Burgho_Gabriel.pdf)
